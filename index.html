@@ -2,14 +2,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ecotots • Kids Thrift Store</title>
-  <meta name="description" content="Eco-friendly kids thrift store. Pay via UPI by scanning the QR code."/>
-  <!-- Google Fonts -->
-  https://fonts.googleapis.com
-  https://fonts.gstatic.com
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap   :root{
+  <meta name="description" content="Eco-friendly kids thrift store. Pay via UPI by scanning the QR code." />
+
+  <!-- Favicon & app icons -->
+  <favicon.ico
+  <link rel="icon" type="image/png" href="/favicon-32x32pple-touch-icon" href="/apple-touch-icon.png" sizesolors -->
+  /site.webmanifest
+  <meta name="theme-color" content="#2e7d32">
+  <meta name="msapplication-TileColor" content="#2e7d32">
+  <!-- Optional: Safari pinned tab (monochrome SVG) -->
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#2e7d32nnect" href="https://fonts.googleapis href="https://fonts.gstaticis.com/css2?family=Poppins:wght@400;600&display=swap
+
+  <style>
+    :root{
       --primary:#2e7d32;   /* Eco green */
       --accent:#f0f7f2;
       --text:#222;
@@ -70,7 +78,6 @@
       background:#fff; color:var(--primary); border:1px solid var(--primary);
       padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:600; flex:1;
     }
-
     /* Payment section */
     .pay{
       margin-top:28px; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;
@@ -102,8 +109,10 @@
   <header>
     <div class="wrap">
       <div class="brand">
-        <!-- Optional logo -->
-        <img src="logo.png" alt="Ecotots logo" onerror="this.style.display='none'agline">Gently-loved kids’ items • Sustainable & affordable</div>
+        logo.png
+        <div>
+          <h1>Ecotots</h1>
+          <div class="tagline">Gently-loved kids’ items • Sustainable & affordable</div>
         </div>
       </div>
 
@@ -129,14 +138,13 @@
           <div class="upi-box">
             <div>
               <div class="small">UPI ID</div>
-              <!-- Set your UPI here -->
               <div id="upiText" style="font-weight:700; font-size:1.05rem">9621146688@upi</div>
             </div>
             <button class="btn copy" onclick="copyUPI()">Copy UPI ID</button>
           </div>
 
           <div style="margin-top:12px">
-            <a id="upiIntent"
+            #Open UPI app</a>
             <div class="small" style="margin-top:6px">
               Tip: You can also use Google Pay / PhonePe / BHIM and paste the UPI ID.
             </div>
@@ -144,9 +152,7 @@
         </div>
 
         <div class="qr">
-          <!-- Replace qr.png with your generated QR image -->
-          <img src       </div>
-      </div>
+          <img src="qr.png" alt="UP   </div>
     </section>
   </main>
 
@@ -154,35 +160,26 @@
     © <span id="year"></span> Ecotots • Kids Thrift • Follow us on Instagram @ecotots
   </footer>
 
-  <!-- JS: load products.json, search, copy, WhatsApp order, UPI deep link, scroll -->
+  <!-- JS -->
   <script>
-    // current year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Load products from data/products.json and render
     async function loadProducts() {
       try {
         const res = await fetch('./data/products.json', { cache: 'no-store' });
         const products = await res.json();
-
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
 
-        // Keep only published (published !== false)
         const items = products.filter(p => p.published !== false);
-
         items.forEach(p => {
           const card = document.createElement('article');
           card.className = 'card';
-          // for search, combine title + size + condition + slug
-          const tags = [p.title, p.size, p.condition, p.slug].filter(Boolean).join(' ').toLowerCase();
-          card.dataset.tags = tags;
+          card.dataset.tags = [p.title, p.size, p.condition].filter(Boolean).join(' ').toLowerCase();
 
-          // Carousel
           let idx = 0;
           const img = document.createElement('img');
-          const firstImg = (p.image_urls && p.image_urls[0]) || 'images/placeholder.png';
-          img.src = firstImg;
+          img.src = (p.image_urls && p.image_urls[0]) || 'images/placeholder.png';
 
           const carousel = document.createElement('div');
           carousel.className = 'carousel';
@@ -193,26 +190,24 @@
           if (p.image_urls && p.image_urls.length > 1) {
             const prev = document.createElement('button'); prev.textContent = '‹';
             const next = document.createElement('button'); next.textContent = '›';
-            prev.onclick = () => { idx = (idx - 1 + p.image_urls.length) % p.image_urls.length; img.src = p.image_urls[idx] || img.src; };
-            next.onclick = () => { idx = (idx + 1) % p.image_urls.length; img.src = p.image_urls[idx] || img.src; };
+            prev.onclick = () => { idx = (idx - 1 + p.image_urls.length) % p.image_urls.length; img.src = p.image_urls[idx]; };
+            next.onclick = () => { idx = (idx + 1) % p.image_urls.length; img.src = p.image_urls[idx]; };
             controls.appendChild(prev); controls.appendChild(next);
           }
 
-          // Info
           const info = document.createElement('div');
           info.className = 'info';
-          const priceTxt = p.price ? `₹${p.price}` : '';
+          const price = p.price ? `₹${p.price}` : '';
           const sizeCond = [p.size, p.condition].filter(Boolean).join(' • ');
-          const phone = p.phone || '9621146688';
-          const upi = p.upi || document.getElementById('upiText').textContent.trim();
+          const phone = (p.phone || '9621146688').replace(/[^0-9]/g, '');
 
           info.innerHTML = `
             <h3 class="title">${p.title || ''}</h3>
             <div class="small">${sizeCond}</div>
-            <div class="price">${priceTxt}</div>
-            <p class="small" style="margin:.6em 0">${p.description || ''}</p>
+            <div class="price">${price}</div>
+            <p class="small">${p.description || ''}</p>
             <div class="actions">
-              <button class="btn-outline" onclick="whatsappOrder(${JSON.stringify(p.title || 'this item')}, ${JSON.stringify(p.price || '')}, ${JSON.stringify(phone)})">Order via WhatsApp</button>
+              <button class="btn-outline" onclick="whatsappOrder(${JSON.stringify(p.title || 'this item')}, ${JSON.stringify(p.price || '')}, '${phone}')">Order via WhatsApp</button>
               <button class="btn-outline" onclick="copyText(${JSON.stringify(p.title || '')})">Copy Title</button>
             </div>
           `;
@@ -223,13 +218,10 @@
           grid.appendChild(card);
         });
 
-        // Hook search to rendered cards
         setupSearch();
-      } catch (err) {
-        console.error('Failed to load products:', err);
-        // Fallback: show a friendly message
-        const grid = document.getElementById('grid');
-        grid.innerHTML = `
+      } catch (e) {
+        console.error(e);
+        document.getElementById('grid').innerHTML = `
           <article class="card">
             <div class="info">
               <h3 class="title">No products yet</h3>
@@ -237,65 +229,50 @@
             </div>
           </article>
         `;
-        setupSearch();
       }
     }
 
-    // Search filter
     function setupSearch() {
       const searchEl = document.getElementById('search');
-      const cards = Array.from(document.querySelectorAll('.card'));
-      searchEl.addEventListener('input', (e) => {
+      searchEl.addEventListener('input', e => {
         const q = e.target.value.toLowerCase();
-        cards.forEach(card => {
+        document.querySelectorAll('.card').forEach(card => {
           const text = (card.querySelector('.title')?.textContent || '') + ' ' + (card.dataset.tags || '');
           card.style.display = text.toLowerCase().includes(q) ? '' : 'none';
         });
       });
     }
 
-    // Copy arbitrary text (e.g., title)
     function copyText(txt){
       navigator.clipboard.writeText(txt).then(()=>alert('Copied: ' + txt)).catch(()=>alert('Copy failed'));
     }
 
-    // WhatsApp order — uses per-product phone if present
     function whatsappOrder(item, price, phone){
       const upiId = document.getElementById('upiText').textContent.trim();
-      const amount = price ? `₹${price}` : '';
       const msg = encodeURIComponent(
-        `Hello Ecotots! I want to buy: ${item}\nPrice: ${amount}\nI will pay via UPI to ${upiId} and share the screenshot.\nPlease confirm availability.`
+        `Hello Ecotots! I want to buy: ${item}\nPrice: ₹${price}\nI will pay via UPI to ${upiId} and share the screenshot.\nPlease confirm availability.`
       );
-      // phone should be in international format without "+" (e.g., 919621146688)
-      const safePhone = (String(phone || '')).replace(/[^0-9]/g,'');
-      const url = `https://wa.me/${safePhone}?text=${msg}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
     }
 
-    // Copy UPI
     function copyUPI(){
       const upi = document.getElementById('upiText').textContent.trim();
       navigator.clipboard.writeText(upi).then(()=>alert('UPI copied: ' + upi)).catch(()=>alert('Copy failed'));
     }
 
-    // Scroll to pay
     function scrollToPay(){
       document.getElementById('pay').scrollIntoView({behavior:'smooth'});
     }
 
-    // Build UPI deep link from UPI ID + Payee name
     function openUPIIntent(ev){
       ev.preventDefault();
       const upiId = document.getElementById('upiText').textContent.trim();
       const payeeName = 'Ecotots';
       const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&cu=INR`;
-      // Try opening UPI intent
       window.location.href = upiUrl;
     }
 
-    // Init
     loadProducts();
   </script>
 </body>
 </html>
-``
