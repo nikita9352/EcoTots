@@ -1,0 +1,96 @@
+
+name: "🛍 New Product"
+description: "Submit a product to Ecotots"
+title: "[Product] "
+labels: ["product"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: "e.g., Carter’s Onesie"
+      placeholder: "Product title"
+    validations:
+      required: true
+
+  - type: input
+    id: price
+    attributes:
+      label: Price (₹)
+      placeholder: "150"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options:
+        - 0–3M
+        - 3–6M
+        - 6–12M
+        - 12–18M
+        - 18–24M
+        - 2–3Y
+        - 3–4Y
+        - Other
+    validations:
+      required: false
+
+  - type: dropdown
+    id: condition
+    attributes:
+      label: Condition
+      options:
+        - New with tag
+        - Like new
+        - Gently used
+        - Good
+        - Fair
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Fabric, color, notes…"
+      placeholder: "Cotton, pink, washed once…"
+    validations:
+      required: false
+
+  - type: input
+    id: phone
+    attributes:
+      label: WhatsApp Number
+      placeholder: "9621146688"
+      value: "9621146688"
+    validations:
+      required: false
+
+  - type: input
+    id: upi
+    attributes:
+      label: UPI ID
+      placeholder: "9621146688@upi"
+      value: "9621146688@upi"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: published
+    attributes:
+      label: Publish now?
+      options:
+        - Yes
+        - No (save as draft)
+    validations:
+      required: true
+
+  - type: attachments
+    id: photos
+    attributes:
+      label: Photos
+      description: "Attach multiple. From phone, tap camera 📷"
+    validations:
+      required: false
