@@ -13,7 +13,7 @@ Includes:
 3. Commit changes to update the live site.
 
 ## Payment
-- UPI ID: ecotots@upi
+- UPI ID: 9621146688@upi
 - Scan QR code or click "Open UPI app" button.
 
 ## Live Site
