@@ -17,4 +17,4 @@ Includes:
 - Scan QR code or click "Open UPI app" button.
 
 ## Live Site
-[https://yourusername.github.io/ecotots-store](https://yourusername.github.io/ecotots-store)
+[https://nikita9352.github.io/ecotots-store](https://nikita9352.github.io/ecotots-store)
