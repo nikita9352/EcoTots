@@ -1,9 +1,7 @@
-# EcoTots
-EcoTots - A kids thrift store showcasing eco-friendly products.
-
 # Ecotots - Kids Thrift Store
 
-A simple static website for Ecotots, showcasing eco-friendly kids' thrift items.  
+A simple static website for Ecotots, showcasing eco-friendly kids' thrift items.
+
 Includes:
 - Product catalogue
 - UPI QR code for payments
@@ -19,4 +17,4 @@ Includes:
 - Scan QR code or click "Open UPI app" button.
 
 ## Live Site
-[https://nikita9352.github.io/ecotots-store](https://nikita9352.github.io/ec
+[https://yourusername.github.io/ecotots-store](https://yourusername.github.io/ecotots-store)
