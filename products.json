@@ -1,16 +1,14 @@
+
 [
   {
     "id": "eco001",
-    "name": "Bamboo Baby Toothbrush",
-    "price": 149,
-    "image": "images/bamboo.svg",
-    "description": "Soft bristles, biodegradable bamboo handle."
-  },
-  {
-    "id": "eco002",
     "name": "Organic Cotton Onesie",
+    "images": ["images/onesie1.jpg", "images/onesie2.jpg"],
+    "features": ["GOTS certified", "Soft fabric", "Eco-friendly dyes"],
+    "condition": "Brand New",
+    "link": "https://example.com/onesie",
     "price": 699,
-    "image": "images/onesie.svg",
-    "description": "GOTS certified organic cotton."
+    "pickup": "Koramangala, Bangalore",
+    "contact": "+91 9621146688"
   }
 ]
