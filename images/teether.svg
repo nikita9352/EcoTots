@@ -1,0 +1,18 @@
+
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 240'>
+  <rect width='400' height='240' fill='#f2fbf2'/>
+  <g transform='translate(40,20)'>
+    <rect x='0' y='0' width='320' height='200' rx='16' fill='#ffffff' stroke='#d3ead3'/>
+    <g transform='translate(24,24)'>
+      <rect x='0' y='0' width='140' height='140' rx='12' fill='#e6f5e6'/>
+      <circle cx='70' cy='70' r='35' fill='none' stroke='#2e7d32' stroke-width='8'/>
+      <rect x='60' y='45' width='20' height='50' rx='8' fill='#a5d6a7'/>
+      <text x='0' y='170' fill='#2e7d32' font-family='Arial' font-size='14'>Wooden teether</text>
+    </g>
+    <g transform='translate(180,36)'>
+      <text x='0' y='0' fill='#1b5e20' font-size='22' font-family='Arial' font-weight='bold'>Wooden Teether Ring</text>
+      <text x='0' y='34' fill='#4d7c50' font-size='16' font-family='Arial'>Natural beechwood</text>
+      <text x='0' y='70' fill='#2e7d32' font-size='24' font-family='Arial' font-weight='bold'>₹299</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+
+:root{
+  --eco-green: #2e7d32;
+  --eco-leaf: #4caf50;
+  --eco-cream: #f5fff3;
+}
+.hero{
+  background: radial-gradient(1200px 500px at 50% -10%, var(--eco-cream), #ffffff);
+}
+.product-card{ border: none; box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+.product-img{ height: 200px; object-fit: cover; }
+.btn-primary{ background-color: var(--eco-green); border-color: var(--eco-green); }
+.btn-primary:hover{ background-color: #256628; border-color: #256628; }
+a{ text-decoration: none; }

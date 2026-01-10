@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoTots — Eco‑friendly essentials for little ones</title>
+  <meta name="description" content="EcoTots: Eco‑friendly, sustainable essentials for babies and kids. Order via WhatsApp and pay via UPI." />
+  <meta property="og:title" content="EcoTots" />
+  <meta property="og:description" content="Eco‑friendly essentials for little ones. Order via WhatsApp & UPI." />
+  <meta property="og:type" content="website" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml" />
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="images/logo.svg" alt="EcoTots logo" width="32" height="32" class="me-2" />
+        <span class="fw-bold">EcoTots</span>
+      </a>
+      <div class="ms-auto">
+        <a class="btn btn-success" id="waTop" target="_blank" rel="noopener">Chat on WhatsApp</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container py-5 text-center">
+      <h1 class="display-6 fw-bold mb-2">Eco‑friendly essentials for little ones</h1>
+      <p class="lead text-muted mb-3">Thoughtfully made, planet‑kind products for babies and kids.</p>
+      <a class="btn btn-primary me-2" href="#shop">Shop now</a>
+      <a class="btn btn-outline-success" id="waHero" target="_blank" rel="noopener">Ask on WhatsApp</a>
+    </div>
+  </header>
+
+  <main class="container my-4" id="shop">
+    <div class="row g-3" id="productGrid"></div>
+  </main>
+
+  <footer class="container my-5 small text-muted">
+    <hr/>
+    <div class="row">
+      <div class="col-12 col-md-8">
+        <p class="mb-1">Orders via WhatsApp: <a href="https://wa.me/919621146688" target="_blank" rel="noopener">+91 9621146688</a></p>
+        <p class="mb-1">UPI handle: <strong>nikita9352upi</strong> — UPI ID: <strong>9621146688@upi</strong></p>
+        <p class="mb-0">&copy; 2026 EcoTots</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const WHATSAPP_NUMBER = '919621146688';
+    const UPI_ID = '9621146688@upi';
+    const PAYEE_NAME = 'Nikita';
+    const CURRENCY = 'INR';
+
+    const rupee = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+
+    function buildWhatsAppLink(message) {
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    }
+
+    function buildUpiLink(amount, note) {
+      const params = new URLSearchParams({
+        pa: UPI_ID,
+        pn: PAYEE_NAME,
+        am: String(amount ?? ''),
+        tn: note || 'EcoTots order',
+        cu: CURRENCY
+      });
+      return `upi://pay?${params.toString()}`;
+    }
+
+    // Init top buttons
+    const defaultMsg = 'Hi Nikita, I want to know more about EcoTots products.';
+    document.getElementById('waTop').href = buildWhatsAppLink(defaultMsg);
+    document.getElementById('waHero').href = buildWhatsAppLink(defaultMsg);
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('products.json', { cache: 'no-cache' });
+        const products = await res.json();
+        const grid = document.getElementById('productGrid');
+
+        products.forEach(p => {
+          const col = document.createElement('div');
+          col.className = 'col-12 col-sm-6 col-lg-4';
+
+          const card = document.createElement('div');
+          card.className = 'card product-card h-100';
+
+          if (p.image) {
+            const img = document.createElement('img');
+            img.src = p.image; img.alt = p.name || 'Product';
+            img.className = 'card-img-top product-img';
+            card.appendChild(img);
+          }
+
+          const body = document.createElement('div');
+          body.className = 'card-body d-flex flex-column';
+
+          const title = document.createElement('h5');
+          title.className = 'card-title';
+          title.textContent = p.name || 'Product';
+          body.appendChild(title);
+
+          const desc = document.createElement('p');
+          desc.className = 'card-text text-muted';
+          desc.textContent = p.description || '';
+          body.appendChild(desc);
+
+          const priceRow = document.createElement('div');
+          priceRow.className = 'd-flex align-items-center justify-content-between mb-2';
+          const price = document.createElement('div');
+          price.className = 'h6 mb-0 text-success';
+          const amount = Number(p.price || 0);
+          price.textContent = amount ? rupee.format(amount) : 'Contact for price';
+          priceRow.appendChild(price);
+
+          const qtyWrap = document.createElement('div');
+          qtyWrap.className = 'input-group input-group-sm qty-wrap';
+          qtyWrap.innerHTML = `<span class="input-group-text">Qty</span><input type="number" class="form-control" min="1" value="1" style="max-width:90px">`;
+          priceRow.appendChild(qtyWrap);
+          body.appendChild(priceRow);
+
+          const actions = document.createElement('div');
+          actions.className = 'mt-auto d-flex gap-2';
+
+          const btnWA = document.createElement('a');
+          btnWA.className = 'btn btn-success flex-grow-1';
+          btnWA.textContent = 'Order via WhatsApp';
+          btnWA.target = '_blank'; btnWA.rel = 'noopener';
+
+          const btnUPI = document.createElement('a');
+          btnUPI.className = 'btn btn-primary';
+          btnUPI.textContent = 'Pay via UPI';
+
+          const updateLinks = () => {
+            const qty = Number(qtyWrap.querySelector('input').value || 1);
+            const total = Math.max(1, qty) * amount;
+            const orderMsg = `Hello Nikita, I want to order: ${p.name} (ID: ${p.id||''}) x ${qty} — Total ${rupee.format(total)}.`;
+            btnWA.href = buildWhatsAppLink(orderMsg);
+            btnUPI.href = buildUpiLink(total, `EcoTots: ${p.name} x ${qty}`);
+          };
+
+          qtyWrap.querySelector('input').addEventListener('input', updateLinks);
+          updateLinks();
+
+          actions.appendChild(btnWA);
+          actions.appendChild(btnUPI);
+          body.appendChild(actions);
+
+          if (typeof p.stock === 'number') {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-info position-absolute m-2';
+            badge.style.top = '0'; badge.style.left = '0';
+            badge.textContent = `Stock: ${p.stock}`;
+            card.appendChild(badge);
+          }
+
+          card.appendChild(body);
+          col.appendChild(card);
+          grid.appendChild(col);
+        });
+      } catch (e) {
+        document.getElementById('productGrid').innerHTML = `<div class='col-12'><div class='alert alert-danger'>Could not load products.json</div></div>`;
+        console.error(e);
+      }
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
