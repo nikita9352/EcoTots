@@ -1,27 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
   <title>EcoTots — Eco‑friendly essentials for little ones</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet' />
+  <link rel='stylesheet' href='styles.css' />
 </head>
-<body class="bg-light">
-  <nav class="navbar navbar-light bg-white shadow-sm">
-    <div class="container">
-      <span class="navbar-brand fw-bold">EcoTots</span>
-      <a class="btn btn-success" id="waTop" target="_blank">Chat on WhatsApp</a>
+<body class='bg-light'>
+  <nav class='navbar navbar-light bg-white shadow-sm sticky-top'>
+    <div class='container'>
+      <a class='navbar-brand fw-bold' href='#'>EcoTots</a>
+      <a class='btn btn-success' id='waTop' target='_blank' rel='noopener'>Chat on WhatsApp</a>
     </div>
   </nav>
 
-  <main class="container my-4" id="shop">
-    <div class="row g-3" id="productGrid"></div>
+  <header class='hero text-center py-4'>
+    <div class='container'>
+      <h1 class='h4 fw-bold mb-1'>Eco‑friendly essentials for little ones</h1>
+      <p class='text-muted mb-0'>Swipe product images • Order via WhatsApp • Pay via UPI</p>
+    </div>
+  </header>
+
+  <main class='container my-3' id='shop'>
+    <div id='productGrid' class='row g-3'></div>
   </main>
 
-  <footer class="container my-4 small text-muted">
+  <footer class='container my-4 small text-muted'>
     <hr />
-    <p>Orders via WhatsApp: <a href="https://wa.me/919621146688" target="_blank">+91 9621146688</a></p>
+    <p>Orders via WhatsApp: <a href='https://wa.me/919621146688' target='_blank' rel='noopener'>+91 9621146688</a></p>
     <p>UPI ID: <strong>9621146688@upi</strong></p>
     <p>&copy; 2026 EcoTots</p>
   </footer>
@@ -32,56 +39,95 @@
     const PAYEE_NAME = 'Nikita';
     const CURRENCY = 'INR';
 
-    function buildWhatsAppLink(msg) {
-      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    function buildWhatsAppLink(message) {
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     }
     function buildUpiLink(amount, note) {
-      const params = new URLSearchParams({
-        pa: UPI_ID,
-        pn: PAYEE_NAME,
-        am: amount,
-        tn: note,
-        cu: CURRENCY
-      });
+      const params = new URLSearchParams({ pa: UPI_ID, pn: PAYEE_NAME, am: String(amount||''), tn: note||'EcoTots order', cu: CURRENCY });
       return `upi://pay?${params.toString()}`;
     }
 
     document.getElementById('waTop').href = buildWhatsAppLink('Hi Nikita, I want to know more about EcoTots products.');
 
-    async function loadProducts() {
-      const res = await fetch('products.json');
-      const products = await res.json();
-      const grid = document.getElementById('productGrid');
-      products.forEach(p => {
-        const col = document.createElement('div');
-        col.className = 'col-12 col-sm-6 col-lg-4';
-        const card = document.createElement('div');
-        card.className = 'card';
-        if(p.image) {
-          const img = document.createElement('img');
-          img.src = p.image; img.className='card-img-top';
-          card.appendChild(img);
-        }
-        const body = document.createElement('div');
-        body.className='card-body';
-        body.innerHTML = `<h5>${p.name}</h5><p>${p.description}</p><p class='text-success'>₹${p.price}</p>`;
-        const waBtn = document.createElement('a');
-        waBtn.className='btn btn-success me-2';
-        waBtn.textContent='Order via WhatsApp';
-        waBtn.href=buildWhatsAppLink(`Hello Nikita, I want to order: ${p.name} for ₹${p.price}.`);
-        waBtn.target='_blank';
-        const upiBtn = document.createElement('a');
-        upiBtn.className='btn btn-primary';
-        upiBtn.textContent='Pay via UPI';
-        upiBtn.href=buildUpiLink(p.price, `Payment for ${p.name}`);
-        body.appendChild(waBtn);
-        body.appendChild(upiBtn);
-        card.appendChild(body);
-        col.appendChild(card);
-        grid.appendChild(col);
-      });
+    function makeFeaturesList(arr) {
+      if (!Array.isArray(arr) || !arr.length) return '';
+      return '<ul class="mb-2">' + arr.map(f => `<li>${f}</li>`).join('') + '</ul>';
     }
+
+    function makeCarousel(images, pid) {
+      const imgs = Array.isArray(images) ? images : [];
+      if (!imgs.length) return '';
+      const carouselId = `carousel-${pid}`;
+      const indicators = imgs.map((_, i) => `
+        <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${i}" ${i===0?'class="active" aria-current="true"':''} aria-label="Slide ${i+1}"></button>
+      `).join('');
+      const items = imgs.map((src, i) => `
+        <div class="carousel-item ${i===0?'active':''}">
+          <img src="${src}" class="d-block w-100 product-img" alt="image ${i+1}">
+        </div>
+      `).join('');
+      return `
+        <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">${indicators}</div>
+          <div class="carousel-inner">${items}</div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>`;
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('products.json', { cache: 'no-cache' });
+        const products = await res.json();
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+        products.forEach(p => {
+          const col = document.createElement('div'); col.className = 'col-12 col-sm-6 col-lg-4';
+          const card = document.createElement('div'); card.className = 'card product-card';
+
+          const carouselHtml = makeCarousel(p.images, p.id || Math.random().toString(36).slice(2));
+          if (carouselHtml) { card.insertAdjacentHTML('afterbegin', carouselHtml); }
+
+          const body = document.createElement('div'); body.className = 'card-body';
+          body.innerHTML = `
+            <h5 class="card-title mb-1">${p.name || 'Item'}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-secondary">${p.condition || 'Condition: NA'} </span>
+              <span class="text-success fw-semibold">₹${p.price ?? ''}</span>
+            </div>
+            ${makeFeaturesList(p.features)}
+            ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm mb-2">View Online</a>` : ''}
+            <div class="small text-muted">Pickup: ${p.pickup || 'NA'}</div>
+            <div class="small text-muted">Contact: ${p.contact || ''}</div>
+          `;
+
+          const actions = document.createElement('div'); actions.className = 'mt-2 d-flex gap-2';
+          const orderMsg = `Hello Nikita, I want to order: ${p.name} — ₹${p.price}. Condition: ${p.condition||'NA'}. Pickup: ${p.pickup||'NA'}. Contact: ${p.contact||''}.`;
+          const waBtn = document.createElement('a'); waBtn.className = 'btn btn-success flex-grow-1'; waBtn.textContent = 'Order via WhatsApp';
+          waBtn.href = buildWhatsAppLink(orderMsg); waBtn.target = '_blank'; waBtn.rel = 'noopener';
+          const upiBtn = document.createElement('a'); upiBtn.className = 'btn btn-primary'; upiBtn.textContent = 'Pay via UPI';
+          upiBtn.href = buildUpiLink(p.price, `EcoTots: ${p.name}`);
+          actions.appendChild(waBtn); actions.appendChild(upiBtn);
+
+          body.appendChild(actions);
+          card.appendChild(body);
+          col.appendChild(card);
+          grid.appendChild(col);
+        });
+      } catch (e) {
+        document.getElementById('productGrid').innerHTML = `<div class='col-12'><div class='alert alert-danger'>Could not load products.json</div></div>`;
+        console.error(e);
+      }
+    }
+
     loadProducts();
   </script>
+  <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'></script>
 </body>
 </html>

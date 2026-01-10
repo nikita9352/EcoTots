@@ -1,14 +1,39 @@
-
 [
   {
-    "id": "eco001",
+    "id": "eco101",
     "name": "Organic Cotton Onesie",
-    "images": ["images/onesie1.jpg", "images/onesie2.jpg"],
-    "features": ["GOTS certified", "Soft fabric", "Eco-friendly dyes"],
+    "images": [
+      "images/onesie1.svg",
+      "images/onesie2.svg",
+      "images/onesie3.svg"
+    ],
+    "features": [
+      "GOTS certified",
+      "Soft fabric",
+      "Eco-friendly dyes"
+    ],
     "condition": "Brand New",
     "link": "https://example.com/onesie",
     "price": 699,
-    "pickup": "Koramangala, Bangalore",
+    "pickup": "Pune, MH",
+    "contact": "+91 9621146688"
+  },
+  {
+    "id": "eco102",
+    "name": "Wooden Teether Ring",
+    "images": [
+      "images/teether1.svg",
+      "images/teether2.svg"
+    ],
+    "features": [
+      "Natural beechwood",
+      "BPA-free",
+      "Easy to clean"
+    ],
+    "condition": "Like New",
+    "link": "https://example.com/teether",
+    "price": 299,
+    "pickup": "Pune, MH",
     "contact": "+91 9621146688"
   }
 ]
