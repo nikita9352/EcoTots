@@ -4,26 +4,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EcoTots — Admin (mobile)</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" reldy { background:#f7f7f7; }
-    .card { box-shadow:0 4px 16px rgba(0,0,0,.06); }
-    .preview img { width:80px; height:80px; object-fit:cover; border-radius:6px; margin:4px; }
+  <title>EcoTots — Admin (mobile, auto-commit)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"  body{background:#f7f7f7}
+    .card{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+    .preview img{width:80px;height:80px;object-fit:cover;border-radius:6px;margin:4px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+    .smallmuted{font-size:.9rem;color:#666}
   </style>
 </head>
 <body>
   <div class="container py-3">
-    <h1 class="h5 mb-1">EcoTots — Catalog Editor</h1>
-    <p class="text-muted mb-3">Use this page on mobile to edit <code>products.json</code>. Download the file and upload it to your repo root.</p>
+    <h1 class="h5 mb-2">EcoTots — Catalog Editor</h1>
+    <p class="text-muted">Edit <code>products.json</code> from your phone. Optional: auto-commit to GitHub.</p>
 
-    <!-- Load products.json -->
+    <!-- GitHub settings -->
     <div class="card mb-3">
       <div class="card-body">
-        <h2 class="h6">Load existing <code>products.json</code></h2>
+        <h2 class="h6">GitHub (for auto‑save)</h2>
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label">Owner</label>
+            <input id="ghOwner" class="form-control" value="nikita9352" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">Repo</label>
+            <input id="ghRepo" class="form-control" value="ecotots" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">Branch</label>
+            <input id="ghBranch" class="form-control" value="main" />
+          </div>
+          <div class="col-6">
+            <label class="form-label">File path</label>
+            <input id="ghPath" class="form-control" value="products.json" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Personal Access Token (fine‑grained; Contents: Read/Write)</label>
+            <input id="ghToken" class="form-control" type="password" placeholder="ghp_..." />
+            <div class="form-text">Token is only used in your browser to call GitHub; not stored or sent elsewhere.</div>
+          </div>
+          <div class="col-12 d-flex gap-2 align-items-center">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="autoCommit" />
+              <label class="form-check-label" for="autoCommit">Auto‑commit on changes</label>
+            </div>
+            <button id="btnLoadFromGitHub" class="btn btn-outline-primary btn-sm">Load from GitHub</button>
+            <button id="btnSaveNow" class="btn btn-primary btn-sm">Save now</button>
+          </div>
+          <div id="ghStatus" class="smallmuted mt-2">Status: idle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load products.json from file (optional) -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">Load existing <code>products.json</code> (optional)</h2>
         <input type="file" id="fileInput" accept="application/json" class="form-control" />
       </div>
     </div>
 
-    <!-- Add / Edit Product -->
+    <!-- Form -->
     <div class="card mb-3">
       <div class="card-body">
         <h2 class="h6">Add / Edit Item</h2>
@@ -48,9 +89,9 @@ Feature 3"></textarea>
             <label class="form-label">Upload Images from Phone</label>
             <input type="file" id="uploadImages" accept="image/*" multiple class="form-control" />
             <div id="previewArea" class="preview mt-2 d-flex flex-wrap"></div>
-            <textarea name="images" id="imagesField" class="form-control mt-2" rows="2"
+            <textarea name="images" id="imagesField" class="form-control mt-2 mono" rows="2"
               placeholder="photos/img1.jpg, photos/img2.jpg"></textarea>
-            <div class="form-text">Selected image names will auto-fill here. Upload these files to your repo's <code>photos/</code> folder later.</div>
+            <div class="form-text">This field will auto-fill with <code>photos/&lt;filename&gt;</code> for each selected image. Upload those files to your repo's <code>photos/</code> later.</div>
           </div>
 
           <div class="col-12"><button class="btn btn-primary" type="submit">Add / Update Item</button></div>
@@ -58,7 +99,7 @@ Feature 3"></textarea>
       </div>
     </div>
 
-    <!-- Table + Download -->
+    <!-- Table + actions -->
     <div class="card mb-3">
       <div class="card-body">
         <h2 class="h6">Catalog</h2>
@@ -68,15 +109,32 @@ Feature 3"></textarea>
             <tbody id="list"></tbody>
           </table>
         </div>
-        <button id="downloadBtn" class="btn btn-success">Download products.json</button>
+        <div class="d-flex gap-2">
+          <button id="downloadBtn" class="btn btn-success">Download products.json</button>
+          <button id="clearAllBtn" class="btn btn-outline-danger">Clear all (local only)</button>
+        </div>
       </div>
     </div>
   </div>
 
 <script>
+  // ================== State ==================
   let items = [];
+  let currentSha = null; // latest SHA of products.json when committing
+  const gh = {
+    get owner(){ return document.getElementById('ghOwner').value.trim(); },
+    get repo(){ return document.getElementById('ghRepo').value.trim(); },
+    get branch(){ return document.getElementById('ghBranch').value.trim(); },
+    get path(){ return document.getElementById('ghPath').value.trim() || 'products.json'; },
+    get token(){ return document.getElementById('ghToken').value.trim(); }
+  };
 
-  // Render table
+  // ================== UI helpers ==================
+  function setStatus(msg, type='info'){
+    const el = document.getElementById('ghStatus');
+    el.textContent = `Status: ${msg}`;
+    el.style.color = (type==='error') ? '#b00020' : (type==='success' ? '#1b5e20' : '#666');
+  }
   function renderTable(){
     const tbody = document.getElementById('list');
     tbody.innerHTML = '';
@@ -85,25 +143,27 @@ Feature 3"></textarea>
       const imgCount = Array.isArray(p.images) ? p.images.length : 0;
       tr.innerHTML = `<td>${p.id||''}</td><td>${p.name||''}</td><td>${p.price||''}</td><td>${imgCount}</td>`;
       const tdAct = document.createElement('td');
-      const del = document.createElement('button');
-      del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
-      del.onclick = () => { items.splice(idx,1); renderTable(); };
+      const del = document.createElement('button'); del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
+      del.onclick = async () => {
+        items.splice(idx,1);
+        renderTable();
+        if (document.getElementById('autoCommit').checked) await saveToGitHub('Delete item');
+      };
       tdAct.appendChild(del);
       tr.appendChild(tdAct);
       tbody.appendChild(tr);
     });
   }
 
-  // Load products.json
+  // ================== File load / download ==================
   document.getElementById('fileInput').addEventListener('change', async (e)=>{
     const file = e.target.files[0]; if(!file) return;
     const text = await file.text();
-    try { const j = JSON.parse(text); if(!Array.isArray(j)) throw new Error('Not array'); items = j; }
+    try { const j = JSON.parse(text); if(!Array.isArray(j)) throw new Error('Not array'); items = j; currentSha = null; }
     catch { alert('Invalid JSON'); items = []; }
     renderTable();
   });
 
-  // Download products.json
   document.getElementById('downloadBtn').addEventListener('click', ()=>{
     const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
@@ -113,26 +173,35 @@ Feature 3"></textarea>
     URL.revokeObjectURL(a.href);
   });
 
-  // Add / Edit product
-  document.getElementById('productForm').addEventListener('submit', (e)=>{
+  document.getElementById('clearAllBtn').addEventListener('click', ()=>{
+    if (confirm('Clear all items locally?')) { items = []; renderTable(); }
+  });
+
+  // ================== Add / Edit ==================
+  document.getElementById('productForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const fd = new FormData(e.target);
     const obj = Object.fromEntries(fd.entries());
     obj.price = Number(obj.price || 0);
     obj.features = (obj.features||'').split('\n').map(s=>s.trim()).filter(Boolean);
     obj.images = (obj.images||'').split(',').map(s=>s.trim()).filter(Boolean);
+
     const idx = items.findIndex(x => x.id === obj.id);
     if (idx >= 0) items[idx] = obj; else items.push(obj);
+
     e.target.reset();
     document.getElementById('previewArea').innerHTML = '';
     renderTable();
+
+    if (document.getElementById('autoCommit').checked) {
+      await saveToGitHub(idx>=0 ? 'Update item' : 'Add item');
+    }
   });
 
-  // Mobile photo picker preview + auto-fill
+  // ================== Mobile photo picker ==================
   const uploadInput = document.getElementById('uploadImages');
   const previewArea = document.getElementById('previewArea');
   const imagesField = document.getElementById('imagesField');
-
   uploadInput.addEventListener('change', ()=>{
     previewArea.innerHTML = '';
     const files = Array.from(uploadInput.files);
@@ -146,8 +215,101 @@ Feature 3"></textarea>
     });
     imagesField.value = paths.join(', ');
   });
+
+  // ================== GitHub API helpers ==================
+  async function fetchCurrentFileMeta(){
+    const url = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${gh.path}?ref=${encodeURIComponent(gh.branch)}`;
+    const res = await fetch(url, { headers: { 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${gh.token}` }});
+    if (res.status === 404) { currentSha = null; return null; } // file does not exist yet
+    if (!res.ok) throw new Error(`GET ${gh.path} failed: ${res.status}`);
+    const data = await res.json();
+    currentSha = data.sha || null;
+    return data;
+  }
+
+  function encodeB64(str){
+    // Base64 for UTF‑8 strings in browsers
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  async function commitFile(message, contentB64){
+    const url = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${gh.path}`;
+    const body = {
+      message,
+      content: contentB64,
+      branch: gh.branch
+    };
+    if (currentSha) body.sha = currentSha;
+
+    const res = await fetch(url, {
+      method:'PUT',
+      headers: {
+        'Accept':'application/vnd.github+json',
+        'Authorization':`Bearer ${gh.token}`,
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (res.status === 409) {
+      // SHA out of date—refresh sha and retry once
+      await fetchCurrentFileMeta();
+      body.sha = currentSha || undefined;
+      const res2 = await fetch(url, { method:'PUT', headers:{
+        'Accept':'application/vnd.github+json',
+        'Authorization':`Bearer ${gh.token}`,
+        'Content-Type':'application/json'
+      }, body: JSON.stringify(body) });
+      if (!res2.ok) throw new Error(`PUT retry failed: ${res2.status}`);
+      const data2 = await res2.json();
+      currentSha = data2.content?.sha || null;
+      return data2;
+    }
+
+    if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
+    const data = await res.json();
+    currentSha = data.content?.sha || null;
+    return data;
+  }
+
+  // Public actions
+  document.getElementById('btnLoadFromGitHub').addEventListener('click', async ()=>{
+    try{
+      setStatus('Loading from GitHub…');
+      if (!gh.token) { alert('Enter your GitHub token first.'); return; }
+      const file = await fetchCurrentFileMeta();
+      if (!file) { items = []; renderTable(); setStatus('products.json not found (new file).'); return; }
+      const raw = atob(file.content || '');
+      items = JSON.parse(raw);
+      renderTable();
+      setStatus('Loaded products.json', 'success');
+    }catch(err){ setStatus(err.message || 'Load error', 'error'); }
+  });
+
+  document.getElementById('btnSaveNow').addEventListener('click', async ()=>{
+    await saveToGitHub('Save now');
+  });
+
+  async function saveToGitHub(actionLabel){
+    try{
+      if (!gh.token) { alert('Enter your GitHub token first.'); return; }
+      setStatus(`${actionLabel}: committing…`);
+      if (currentSha === null) { // unknown—fetch once
+        await fetchCurrentFileMeta().catch(()=>{ currentSha = null; });
+      }
+      const json = JSON.stringify(items, null, 2);
+      const b64  = encodeB64(json);
+      const res  = await commitFile(`${actionLabel}: update products.json`, b64);
+      setStatus(`Committed ${gh.path} @ ${gh.branch}`, 'success');
+      return res;
+    }catch(err){
+      console.error(err);
+      setStatus(err.message || 'Commit failed', 'error');
+    }
+  }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.ootstrap.bundle.min.js</script>
+<script src="https://cdn.jsdelivr.net/npm3.2/dist/js/bootstrap.bundle.min.js</script>
 </body>
 </html>
+``
