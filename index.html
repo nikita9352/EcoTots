@@ -8,24 +8,22 @@
   <title>Ecotots • Kids Thrift Store</title>
   <meta name="description" content="Eco-friendly kids thrift store. Pay via UPI by scanning the QR code." />
 
-  <!-- Favicon & app icons -->
-  /favicon.ico
-  /favicon-32x32.png
-  /favicon-16x16.png
-  /apple-touch-icon.png
-  /site.webmanifest <!-- optional -->
+  <!-- Favicons (relative paths for GitHub Project Pages) -->
+  favicon.ico
+  <avicon-32x32.png
+  <link rel="icon" type="image/png" href="favicon-16x16.png"t
   <meta name="theme-color" content="#2e7d32">
 
-  <!-- Open Graph (optional but good for social sharing) -->
+  <!-- Social sharing (optional) -->
   <meta property="og:title" content="Ecotots • Kids Thrift Store">
   <meta property="og:description" content="Gently-loved kids' items • Sustainable & affordable">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://nikita9352.github.io/EcoTots/logo.png">
+  <meta property="og:image" content="logo.png">
 
   <!-- Google Fonts -->
   https://fonts.googleapis.com
   https://fonts.gstatic.com
-  https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap
+  <link href="https://fonts.googleapis.com/css2ins:wght@400;600&display=swap
 
   <!-- Styles -->
   <style>
@@ -114,8 +112,6 @@
       .pay .wrap{grid-template-columns:1fr}
       .qr img{width:220px}
     }
-
-    /* Utility */
     .hidden{display:none}
   </style>
 </head>
@@ -126,10 +122,7 @@
     <div class="wrap">
       <div class="brand">
         <!-- Optional logo -->
-        logo.png
-        <div>
-          <h1>Ecotots</h1>
-          <div class="tagline">Gently-loved kids’ items • Sustainable & affordable</div>
+        <img src="logo.png" alt="Ecotots logo" onerror="this.style.displaylass="tagline">Gently-loved kids’ items • Sustainable & affordable</div>
         </div>
       </div>
 
@@ -155,23 +148,27 @@
           <div class="upi-box">
             <div>
               <div class="small">UPI ID</div>
-              <!-- Default UPI; can be overridden per product -->
               <div id="upiText" style="font-weight:700; font-size:1.05rem">9621146688@upi</div>
             </div>
             <button class="btn copy" onclick="copyUPI()">Copy UPI ID</button>
           </div>
 
           <div style="margin-top:12px">
-            #Open UPI app</a>
-            <div class="small" style="margin-top:6px">
+            <a id="upiIntent" class       <div class="small" style="margin-top:6px">
               Tip: You can also use Google Pay / PhonePe / BHIM and paste the UPI ID.
             </div>
           </div>
         </div>
 
         <div class="qr">
-          <!-- Replace qr.png with your generated QR image -->
-          <img src="qr.png" alt="UPI QR code for Ecotots" loading="lazy" onerror="this.stylen id="year"></span> Ecotots • Kids Thrift • Follow us on Instagram @ecotots
+          qr.png
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Ecotots • Kids Thrift • Follow us on Instagram @ecotots
   </footer>
 
   <!-- Scripts -->
@@ -179,15 +176,14 @@
     // Footer year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Load products from data/products.json and render
+    // Load products and render
     async function loadProducts() {
       const grid = document.getElementById('grid');
       try {
-        const res = await fetch('./data/products.json', { cache: 'no-store' });
+        const res = await fetch('data/products.json', { cache: 'no-store' });
         const products = await res.json();
-
-        // Only show published items (published !== false)
         const items = (Array.isArray(products) ? products : []).filter(p => p.published !== false);
+
         if (!items.length) {
           grid.innerHTML = `
             <article class="card">
@@ -205,7 +201,6 @@
         items.forEach(p => {
           const card = document.createElement('article');
           card.className = 'card';
-          // For search: combine title + size + condition + slug/description
           const tags = [p.title, p.size, p.condition, p.slug, p.description].filter(Boolean).join(' ').toLowerCase();
           card.dataset.tags = tags;
 
@@ -238,10 +233,8 @@
           info.className = 'info';
           const priceTxt = p.price ? `₹${p.price}` : '';
           const sizeCond = [p.size, p.condition].filter(Boolean).join(' • ');
-          const phoneRaw = p.phone || '9621146688';
-          const phoneInt = normalizePhoneForWaMe(phoneRaw);
-          const upiDefault = document.getElementById('upiText').textContent.trim();
-          const upiId = p.upi || upiDefault;
+          const phoneInt = normalizePhoneForWaMe(p.phone || '9621146688');
+          const upiId = p.upi || document.getElementById('upiText').textContent.trim();
 
           info.innerHTML = `
             <h3 class="title">${escapeHtml(p.title || '')}</h3>
@@ -274,7 +267,7 @@
       }
     }
 
-    // Simple search filter
+    // Search
     function setupSearch() {
       const searchEl = document.getElementById('search');
       searchEl.addEventListener('input', e => {
@@ -286,15 +279,33 @@
       });
     }
 
-    // Copy arbitrary text (e.g., title or UPI)
+    // Helpers
     function copyText(txt){
       navigator.clipboard.writeText(txt).then(()=>alert('Copied: ' + txt)).catch(()=>alert('Copy failed'));
     }
-
     function copyUPI(){
       const upi = document.getElementById('upiText').textContent.trim();
       navigator.clipboard.writeText(upi).then(()=>alert('UPI copied: ' + upi)).catch(()=>alert('Copy failed'));
     }
-
-    // Normalize phone for wa.me (without '+'). If 10 digits, prefix '91' (India).
+    function scrollToPay(){ document.getElementById('pay').scrollIntoView({behavior:'smooth'}); }
+    function openUPIIntent(ev){
+      ev.preventDefault();
+      const upiId = document.getElementById('upiText').textContent.trim();
+      const payeeName = 'Ecotots';
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&cu=INR`;
+      window.location.href = upiUrl;
+    }
     function normalizePhoneForWaMe(phone){
+      const digits = String(phone || '').replace(/[^0-9]/g, '');
+      if (digits.length === 10) return '91' + digits; // India
+      return digits;
+    }
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // Init
+    loadProducts();
+  </script>
+</body>
+</html>
