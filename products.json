@@ -1,38 +1,16 @@
 [
   {
     "id": "eco001",
-    "name": "Bamboo Baby Toothbrush (2-pack)",
+    "name": "Bamboo Baby Toothbrush",
     "price": 149,
-    "currency": "INR",
-    "image": "images/bamboo_brush.svg",
-    "description": "Soft bristles, biodegradable bamboo handle. Plastic\u2011free packaging.",
-    "stock": 48
+    "image": "images/bamboo.svg",
+    "description": "Soft bristles, biodegradable bamboo handle."
   },
   {
     "id": "eco002",
     "name": "Organic Cotton Onesie",
     "price": 699,
-    "currency": "INR",
     "image": "images/onesie.svg",
-    "description": "GOTS\u2011certified organic cotton, gentle on baby skin.",
-    "stock": 22
-  },
-  {
-    "id": "eco003",
-    "name": "Wooden Teether Ring",
-    "price": 299,
-    "currency": "INR",
-    "image": "images/teether.svg",
-    "description": "Natural beechwood ring with cotton knit, BPA\u2011free.",
-    "stock": 35
-  },
-  {
-    "id": "eco004",
-    "name": "Reusable Snack Pouch",
-    "price": 249,
-    "currency": "INR",
-    "image": "images/snack_pouch.svg",
-    "description": "Leak\u2011resistant, washable, food\u2011safe silicone.",
-    "stock": 40
+    "description": "GOTS certified organic cotton."
   }
 ]
