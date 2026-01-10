@@ -1,127 +1,252 @@
 
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <meta charset='UTF-8' />
-  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EcoTots — Eco‑friendly essentials for little ones</title>
-  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'ass='bg-light'>
-  <nav class='navbar navbar-light bg-white shadow-sm sticky-top'>
-    <div class='container'>
-      <a class='navbar-brandclass='btn btn-success' id='waTop' target='_blank' rel='noopener'>Chat on WhatsApp</a>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css theme -->
+  <link rel="stylesheet" hrefass="bg-light">
+  <!-- Navbar -->
+  <nav class="navbar navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="a>
+      <a class="btn btn-success" id="waTop" target="_blank" rel="noopener">Chat on WhatsApp</a>
     </div>
   </nav>
 
-  <header class='hero text-center py-4'>
-    <div class='container'>
-      <h1 class='h4 fw-bold mb-1'>Eco‑friendly essentials for little ones</h1>
-      <p class='text-muted mb-0'>Swipe product images • Order via WhatsApp • Pay via UPI</p>
+  <!-- Header/Hero -->
+  <header class="hero text-center py-4">
+    <div class="container">
+      <h1 class="h4 fw-bold mb-1">Eco‑friendly essentials for little ones</h1>
+      <p class="text-muted mb-0">Swipe product images • Order via WhatsApp • Pay via UPI</p>
     </div>
   </header>
 
-  <main class='container my-3' id='shop'>
-    <div id='productGrid' class='row g-3'></div>
+  <!-- Shop Grid -->
+  <main class="container my-3" id="shop">
+    <div id="productGrid" class="row g-3"></div>
   </main>
 
   <!-- Footer with Admin link -->
-  <footer class='container my-4 small text-muted'>
+  <footer class="container my-4 small text-muted">
     <hr />
     <p>
       Orders via WhatsApp:
-      <a href='https://wa.me/919621146688' target='_blankp>
-    <p>UPI ID: <strong>9621146688@upi</strong></p>
+      <a href="https://wa.me/919621146688" target="_blank" rel  <p>UPI ID: <strong>9621146688@upi</strong></p>
     <p>
       &copy; 2026 EcoTots —
-      <a href="admin.html" target="_blank" rel="  <script>
-    const WHATSAPP_NUMBER = '919621146688';
+      <a href="admin.html" target>
+  </footer>
+
+  <!-- Main Script (DOM-based; avoids template-string issues) -->
+  <script>
+    // --- Constants ---
+    const WHATSAPP_NUMBER = '919621146688'; // country code + number (no plus)
     const UPI_ID = '9621146688@upi';
     const PAYEE_NAME = 'Nikita';
     const CURRENCY = 'INR';
 
+    // --- Helpers ---
     function buildWhatsAppLink(message) {
       return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     }
     function buildUpiLink(amount, note) {
-      const params = new URLSearchParams({ pa: UPI_ID, pn: PAYEE_NAME, am: String(amount||''), tn: note||'EcoTots order', cu: CURRENCY });
+      const params = new URLSearchParams({
+        pa: UPI_ID,
+        pn: PAYEE_NAME,
+        am: String(amount ?? ''),
+        tn: note || 'EcoTots order',
+        cu: CURRENCY
+      });
       return `upi://pay?${params.toString()}`;
     }
 
-    document.getElementById('waTop').href =
-      buildWhatsAppLink('Hi Nikita, I want to know more about EcoTots products.');
+    // Init top WhatsApp button
+    (function initTopWA() {
+      const el = document.getElementById('waTop');
+      if (el) el.href = buildWhatsAppLink('Hi Nikita, I want to know more about EcoTots products.');
+    })();
 
+    // Create features <ul> safely
     function makeFeaturesList(arr) {
-      if (!Array.isArray(arr) || !arr.length) return '';
-      return '<ul class="mb-2">' + arr.map(f => `<li>${f}</li>`).join('') + '</ul>';
+      if (!Array.isArray(arr) || arr.length === 0) return null;
+      const ul = document.createElement('ul');
+      ul.className = 'mb-2';
+      arr.forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = f;
+        ul.appendChild(li);
+      });
+      return ul;
     }
 
+    // Build Bootstrap carousel (DOM, no big template strings)
     function makeCarousel(images, pid) {
       const imgs = Array.isArray(images) ? images : [];
-      if (!imgs.length) return '';
-      const carouselId = `carousel-${pid}`;
-      const indicators = imgs.map((_, i) => `
-        <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${i}"
-          ${i===0 ? 'class="active" aria-current="true"' : ''} aria-label="Slide ${i+1}">
-        </button>
-      `).join('');
-      const items = imgs.map((src, i) => `
-        <div class="carousel-item ${i===0 ? 'active' : ''}">
-          <img src="${src}" class="d-block w-100 product return `
-        <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">${indicators}</div>
-          <div class="carousel-inner">${items}</div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        </div>`;
+      if (!imgs.length) return null;
+
+      const carouselId = `carousel-${pid || Math.random().toString(36).slice(2)}`;
+
+      const wrapper = document.createElement('div');
+      wrapper.id = carouselId;
+      wrapper.className = 'carousel slide';
+      wrapper.setAttribute('data-bs-ride', 'carousel');
+
+      // Indicators
+      const indicators = document.createElement('div');
+      indicators.className = 'carousel-indicators';
+      imgs.forEach((_, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-bs-target', `#${carouselId}`);
+        b.setAttribute('data-bs-slide-to', String(i));
+        if (i === 0) {
+          b.className = 'active';
+          b.setAttribute('aria-current', 'true');
+        }
+        b.setAttribute('aria-label', `Slide ${i + 1}`);
+        indicators.appendChild(b);
+      });
+      wrapper.appendChild(indicators);
+
+      // Items
+      const inner = document.createElement('div');
+      inner.className = 'carousel-inner';
+      imgs.forEach((src, i) => {
+        const item = document.createElement('div');
+        item.className = 'carousel-item' + (i === 0 ? ' active' : '');
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'd-block w-100 product-img';
+        img.alt = `image ${i + 1}`;
+
+        item.appendChild(img);
+        inner.appendChild(item);
+      });
+      wrapper.appendChild(inner);
+
+      // Prev/Next controls
+      const prev = document.createElement('button');
+      prev.className = 'carousel-control-prev';
+      prev.type = 'button';
+      prev.setAttribute('data-bs-target', `#${carouselId}`);
+      prev.setAttribute('data-bs-slide', 'prev');
+      prev.innerHTML = `
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>`;
+      wrapper.appendChild(prev);
+
+      const next = document.createElement('button');
+      next.className = 'carousel-control-next';
+      next.type = 'button';
+      next.setAttribute('data-bs-target', `#${carouselId}`);
+      next.setAttribute('data-bs-slide', 'next');
+      next.innerHTML = `
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>`;
+      wrapper.appendChild(next);
+
+      return wrapper;
     }
 
+    // Load and render products
     async function loadProducts() {
       try {
         const res = await fetch('products.json', { cache: 'no-cache' });
         const products = await res.json();
+
         const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
 
         products.forEach(p => {
-          const col = document.createElement('div'); col.className = 'col-12 col-sm-6 col-lg-4';
-          const card = document.createElement('div'); card.className = 'card product-card';
+          // column + card
+          const col = document.createElement('div');
+          col.className = 'col-12 col-sm-6 col-lg-4';
 
-          const carouselHtml = makeCarousel(p.images, p.id || Math.random().toString(36).slice(2));
-          if (carouselHtml) { card.insertAdjacentHTML('afterbegin', carouselHtml); }
+          const card = document.createElement('div');
+          card.className = 'card product-card';
 
-          const body = document.createElement('div'); body.className = 'card-body';
-          body.innerHTML = `
-            <h5 class="card-title mb-1">${p.name || 'Item'}</h5>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-secondary">${p.condition || 'Condition: NA'}</span>
-              <span class="text-success fw-semibold">₹${p.price ?? ''}</span>
-            </div>
-            ${makeFeaturesList(p.features)}
-            ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-smckup || 'NA'}</div>
-            <div class="small text-muted">Contact: ${p.contact || ''}</div>
-          `;
+          // Carousel
+          const carousel = makeCarousel(p.images, p.id);
+          if (carousel) card.appendChild(carousel);
 
-          const actions = document.createElement('div'); actions.className = 'mt-2 d-flex gap-2';
+          // Body
+          const body = document.createElement('div');
+          body.className = 'card-body';
+
+          // Title
+          const h5 = document.createElement('h5');
+          h5.className = 'card-title mb-1';
+          h5.textContent = p.name || 'Item';
+          body.appendChild(h5);
+
+          // Price/Condition row
+          const row = document.createElement('div');
+          row.className = 'd-flex justify-content-between align-items-center mb-2';
+
+          const badge = document.createElement('span');
+          badge.className = 'badge bg-secondary';
+          badge.textContent = p.condition || 'Condition: NA';
+          row.appendChild(badge);
+
+          const priceEl = document.createElement('span');
+          priceEl.className = 'text-success fw-semibold';
+          priceEl.textContent = (p.price != null) ? `₹${p.price}` : '';
+          row.appendChild(priceEl);
+
+          body.appendChild(row);
+
+          // Features
+          const featuresList = makeFeaturesList(p.features);
+          if (featuresList) body.appendChild(featuresList);
+
+          // Online link (optional)
+          if (p.link) {
+            const linkBtn = document.createElement('a');
+            linkBtn.href = p.link;
+            linkBtn.target = '_blank';
+            linkBtn.rel = 'noopener';
+            linkBtn.className = 'btn btn-outline-primary btn-sm mb-2';
+            linkBtn.textContent = 'View Online';
+            body.appendChild(linkBtn);
+          }
+
+          // Pickup + Contact
+          const pickup = document.createElement('div');
+          pickup.className = 'small text-muted';
+          pickup.textContent = `Pickup: ${p.pickup || 'NA'}`;
+          body.appendChild(pickup);
+
+          const contact = document.createElement('div');
+          contact.className = 'small text-muted';
+          contact.textContent = `Contact: ${p.contact || ''}`;
+          body.appendChild(contact);
+
+          // Actions (WhatsApp + UPI)
+          const actions = document.createElement('div');
+          actions.className = 'mt-2 d-flex gap-2';
+
           const orderMsg =
             `Hello Nikita, I want to order: ${p.name} — ₹${p.price}. ` +
-            `Condition: ${p.condition||'NA'}. Pickup: ${p.pickup||'NA'}. Contact: ${p.contact||''}.`;
+            `Condition: ${p.condition || 'NA'}. Pickup: ${p.pickup || 'NA'}. ` +
+            `Contact: ${p.contact || ''}.`;
 
-          const waBtn = document.createElement('a'); waBtn.className = 'btn btn-success flex-grow-1';
+          const waBtn = document.createElement('a');
+          waBtn.className = 'btn btn-success flex-grow-1';
           waBtn.textContent = 'Order via WhatsApp';
           waBtn.href = buildWhatsAppLink(orderMsg);
           waBtn.target = '_blank';
           waBtn.rel = 'noopener';
+          actions.appendChild(waBtn);
 
-          const upiBtn = document.createElement('a'); upiBtn.className = 'btn btn-primary';
+          const upiBtn = document.createElement('a');
+          upiBtn.className = 'btn btn-primary';
           upiBtn.textContent = 'Pay via UPI';
           upiBtn.href = buildUpiLink(p.price, `EcoTots: ${p.name}`);
-
-          actions.appendChild(waBtn);
           actions.appendChild(upiBtn);
 
           body.appendChild(actions);
@@ -131,13 +256,14 @@
         });
       } catch (e) {
         document.getElementById('productGrid').innerHTML =
-          `<div class='col-12'><div class='alert alert-danger'>Could not load products.json</div></div>`;
+          `<div class="col-12"><div class="alert alert-danger">Could not load products.json</div></div>`;
         console.error(e);
       }
     }
 
     loadProducts();
   </script>
-  <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.tstrap.bundle.min.js</script>
-</body>
+
+  <!-- Bootstrap JS bundle (for carousel) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.jsody>
 </html>
