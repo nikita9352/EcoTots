@@ -1,100 +1,180 @@
+
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <meta charset='utf-8' />
-  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EcoTots — Admin (mobile)</title>
-  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet' />
-  <style> .card{box-shadow:0 4px 16px rgba(0,0,0,.06)} </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css   body{background:#f7f7f7}
+    .card{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+    .thumb-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem;}
+    .thumb{position:relative; border:1px solid #e5e5e5; border-radius:8px; overflow:hidden; background:#fff; cursor:pointer;}
+    .thumb img{width:100%; height:90px; object-fit:cover; display:block;}
+    .thumb .check{position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.45); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; opacity:0; transition:.15s;}
+    .thumb.selected{outline:2px solid #2e7d32;}
+    .thumb.selected .check{opacity:1;}
+    .muted{color:#666; font-size:.9rem}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+  </style>
 </head>
-<body class='bg-light'>
-  <div class='container py-3'>
-    <h1 class='h5 mb-3'>EcoTots — Catalog Editor</h1>
-    <p class='text-muted'>Use this on mobile to edit your <code>products.json</code>. Download the file and upload to your GitHub repo.</p>
+<body>
+  <div class="container py-3">
+    <h1 class="h5 mb-1">EcoTots — Catalog Editor</h1>
+    <p class="text-muted mb-3">Use this page on mobile to edit <code>products.json</code>. Download the file and upload it to your repo root.</p>
 
-    <div class='card mb-3'><div class='card-body'>
-      <h2 class='h6'>Load existing products.json</h2>
-      <input type='file' id='fileInput' accept='application/json' class='form-control' />
-    </div></div>
-
-    <div class='card mb-3'><div class='card-body'>
-      <h2 class='h6'>Add / Edit Item</h2>
-      <form id='productForm' class='row g-2'>
-        <div class='col-6'><label class='form-label'>ID</label><input name='id' class='form-control' placeholder='eco201' required></div>
-        <div class='col-6'><label class='form-label'>Item Name</label><input name='name' class='form-control' required></div>
-        <div class='col-6'><label class='form-label'>Asking Price (₹)</label><input name='price' type='number' min='0' class='form-control' required></div>
-        <div class='col-6'><label class='form-label'>Condition</label><input name='condition' class='form-control' placeholder='Brand New / Like New / Used'></div>
-        <div class='col-12'><label class='form-label'>Online Link</label><input name='link' class='form-control' placeholder='https://...'></div>
-        <div class='col-12'><label class='form-label'>Pickup Address</label><input name='pickup' class='form-control' placeholder='Area, City'></div>
-        <div class='col-12'><label class='form-label'>Contact Number</label><input name='contact' class='form-control' placeholder='+91 9621146688'></div>
-
-        <div class='col-12'>
-          <label class='form-label'>Features (one per line)</label>
-          <textarea name='features' class='form-control' rows='3' placeholder='Feature 1
-Feature 2
-Feature 3'></textarea>
-        </div>
-
-        <div class='col-12'>
-          <label class='form-label'>Image URLs (comma-separated)</label>
-          <textarea name='images' class='form-control' rows='2' placeholder='images/item1.jpg, images/item2.jpg'></textarea>
-          <div class='form-text'>Tip: Upload images to your repo and paste their paths here.</div>
-        </div>
-
-        <div class='col-12'><button class='btn btn-primary' type='submit'>Add / Update Item</button></div>
-      </form>
-    </div></div>
-
-    <div class='card mb-3'><div class='card-body'>
-      <h2 class='h6'>Catalog</h2>
-      <div class='table-responsive'>
-        <table class='table table-sm align-middle'>
-          <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Images</th><th>Actions</th></tr></thead>
-          <tbody id='list'></tbody>
-        </table>
+    <!-- Load products.json -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">Load existing <code>products.json</code></h2>
+        <input type="file" id="fileInput" accept="application/json" class="form-control" />
       </div>
-      <button id='downloadBtn' class='btn btn-success'>Download products.json</button>
-    </div></div>
+    </div>
+
+    <!-- Add / Edit Product -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">Add / Edit Item</h2>
+        <form id="productForm" class="row g-2">
+          <div class="col-6">
+            <label class="form-label">ID</label>
+            <input name="id" class="form-control" placeholder="eco201" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Item Name</label>
+            <input name="name" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Asking Price (₹)</label>
+            <input name="price" type="number" min="0" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Condition</label>
+            <input name="condition" class="form-control" placeholder="Brand New / Like New / Used">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Online Link</label>
+            <input name="link" class="form-control" placeholder="https://...">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Pickup Address</label>
+            <input name="pickup" class="form-control" placeholder="Area, City">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Contact Number</label>
+            <input name="contact" class="form-control" placeholder="+91 9621146688">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Features (one per line)</label>
+            <textarea name="features" class="form-control" rows="3" placeholder="Feature 1
+Feature 2
+Feature 3"></textarea>
+          </div>
+
+          <!-- Images input + picker -->
+          <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+              <label class="form-label mb-0">Image URLs (comma-separated)</label>
+              <button type="button" id="openPhotosBtn" class="btn btn-sm btn-outline-secondary">
+                Choose from /photos
+              </button>
+            </div>
+            <textarea name="images" id="imagesField" class="form-control mono" rows="2"
+              placeholder="photos/one.jpg, photos/two.jpg"></textarea>
+            <div class="form-text">
+              Tip: Upload images to <code>photos/</code> in your repo. Use the button to insert paths automatically.
+            </div>
+          </div>
+
+          <!-- Photos drawer -->
+          <div class="col-12" id="photosPanel" style="display:none;">
+            <div class="card mt-2">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <strong>/photos</strong>
+                  <button type="button" id="closePhotosBtn" class="btn btn-sm btn-outline-secondary">Close</button>
+                </div>
+                <div class="muted mb-2">Tap to select/unselect images. Then press “Add selected to field”.</div>
+                <div id="photosStatus" class="muted"></div>
+                <div id="thumbGrid" class="thumb-grid mt-2"></div>
+                <div class="d-flex gap-2 mt-3">
+                  <button type="button" id="addSelectedBtn" class="btn btn-success">Add selected to field</button>
+                  <button type="button" id="clearSelectedBtn" class="btn btn-outline-danger">Clear selection</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Add / Update Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Table + Download -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6">Catalog</h2>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Images</th><th>Actions</th></tr></thead>
+            <tbody id="list"></tbody>
+          </table>
+        </div>
+        <button id="downloadBtn" class="btn btn-success">Download products.json</button>
+      </div>
+    </div>
+
   </div>
 
 <script>
-  let items = [];
+  // ========= CONFIG (adjust if your repo name is not 'ecotots') =========
+  const GITHUB_USER = 'nikita9352';
+  const REPO_NAME   = 'ecotots';       // change if your repo name is different
+  const PHOTOS_DIR  = 'photos';        // folder at repo root
 
-  function render(){
+  // ========= State =========
+  let items = [];
+  let photoState = { files: [], selected: new Set() };
+
+  // ========= UI rendering =========
+  function renderTable(){
     const tbody = document.getElementById('list');
     tbody.innerHTML = '';
     items.forEach((p, idx) => {
       const tr = document.createElement('tr');
       const imgCount = Array.isArray(p.images) ? p.images.length : 0;
-      tr.innerHTML = `<td>${p.id||''}</td><td>${p.name||''}</td><td>${p.price||''}</td><td>${imgCount}</td>`;
+      tr.innerHTML = `
+        <td>${p.id || ''}</td>
+        <td>${p.name || ''}</td>
+        <td>${p.price || ''}</td>
+        <td>${imgCount}</td>
+      `;
       const tdAct = document.createElement('td');
-      const del = document.createElement('button'); del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
-      del.onclick = () => { items.splice(idx,1); render(); };
+      const del = document.createElement('button');
+      del.className = 'btn btn-sm btn-outline-danger';
+      del.textContent = 'Delete';
+      del.onclick = () => { items.splice(idx,1); renderTable(); };
       tdAct.appendChild(del);
       tr.appendChild(tdAct);
       tbody.appendChild(tr);
     });
   }
 
+  // ========= products.json load/download =========
   document.getElementById('fileInput').addEventListener('change', async (e)=>{
     const file = e.target.files[0]; if(!file) return;
     const text = await file.text();
-    try{ const j = JSON.parse(text); if(!Array.isArray(j)) throw new Error('Not array'); items = j; }catch(err){ alert('Invalid JSON'); items = []; }
-    render();
-  });
-
-  document.getElementById('productForm').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const obj = Object.fromEntries(fd.entries());
-    obj.price = Number(obj.price || 0);
-    obj.features = (obj.features||'').split('
-').map(s=>s.trim()).filter(Boolean);
-    obj.images = (obj.images||'').split(',').map(s=>s.trim()).filter(Boolean);
-    const idx = items.findIndex(x => x.id === obj.id);
-    if (idx >= 0) { items[idx] = obj; } else { items.push(obj); }
-    e.target.reset();
-    render();
+    try {
+      const j = JSON.parse(text);
+      if (!Array.isArray(j)) throw new Error('Not array');
+      items = j;
+    } catch {
+      alert('Invalid JSON');
+      items = [];
+    }
+    renderTable();
   });
 
   document.getElementById('downloadBtn').addEventListener('click', ()=>{
@@ -105,6 +185,120 @@ Feature 3'></textarea>
     a.click();
     URL.revokeObjectURL(a.href);
   });
+
+  // ========= Add / Edit form =========
+  document.getElementById('productForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const obj = Object.fromEntries(fd.entries());
+
+    // Normalize
+    obj.price = Number(obj.price || 0);
+    obj.features = (obj.features || '')
+                    .split('\n').map(s=>s.trim()).filter(Boolean);
+    obj.images = (obj.images || '')
+                    .split(',').map(s=>s.trim()).filter(Boolean);
+
+    const idx = items.findIndex(x => x.id === obj.id);
+    if (idx >= 0) items[idx] = obj; else items.push(obj);
+    e.target.reset();
+    renderTable();
+  });
+
+  // ========= Photos browser (GitHub API) =========
+  const openBtn  = document.getElementById('openPhotosBtn');
+  const closeBtn = document.getElementById('closePhotosBtn');
+  const addBtn   = document.getElementById('addSelectedBtn');
+  const clearBtn = document.getElementById('clearSelectedBtn');
+  const panel    = document.getElementById('photosPanel');
+  const statusEl = document.getElementById('photosStatus');
+  const gridEl   = document.getElementById('thumbGrid');
+  const imagesField = document.getElementById('imagesField');
+
+  openBtn.addEventListener('click', async ()=>{
+    panel.style.display = 'block';
+    statusEl.textContent = 'Loading photos...';
+    gridEl.innerHTML = '';
+    photoState.files = [];
+    photoState.selected.clear();
+
+    try {
+      // GitHub contents API for public repos
+      const api = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${PHOTOS_DIR}`;
+      const res = await fetch(api, { headers: { 'Accept': 'application/vnd.github+json' } });
+      if (!res.ok) throw new Error('Unable to list photos/');
+      const data = await res.json();
+
+      // Filter images by extension
+      const exts = ['.jpg','.jpeg','.png','.webp','.gif','.svg'];
+      const imgs = (Array.isArray(data) ? data : [])
+        .filter(x => x.type === 'file' && exts.some(ext => x.name.toLowerCase().endsWith(ext)));
+
+      if (!imgs.length) {
+        statusEl.textContent = 'No images found in /photos. Upload some files to the folder and retry.';
+        return;
+      }
+      statusEl.textContent = `Found ${imgs.length} images`;
+
+      photoState.files = imgs.map(x => ({
+        name: x.name,
+        path: `${PHOTOS_DIR}/${x.name}`,
+        download_url: x.download_url // raw file URL for preview
+      }));
+
+      // Render thumbs
+      gridEl.innerHTML = '';
+      photoState.files.forEach((f, i) => {
+        const div = document.createElement('div');
+        div.className = 'thumb';
+        div.dataset.index = String(i);
+        div.innerHTML = `
+          <img src="${f.download_url}" alt="${fs="check">✓</div>
+        `;
+        div.addEventListener('click', ()=>{
+          const idx = Number(div.dataset.index);
+          if (photoState.selected.has(idx)) {
+            photoState.selected.delete(idx);
+            div.classList.remove('selected');
+          } else {
+            photoState.selected.add(idx);
+            div.classList.add('selected');
+          }
+        });
+        gridEl.appendChild(div);
+      });
+
+    } catch (err) {
+      statusEl.textContent = 'Error: ' + (err?.message || 'Could not load images');
+    }
+  });
+
+  closeBtn.addEventListener('click', ()=>{
+    panel.style.display = 'none';
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    photoState.selected.clear();
+    Array.from(gridEl.children).forEach(ch => ch.classList.remove('selected'));
+  });
+
+  addBtn.addEventListener('click', ()=>{
+    if (photoState.selected.size === 0) {
+      alert('Select one or more images first.');
+      return;
+    }
+    const chosen = Array.from(photoState.selected).map(i => photoState.files[i].path);
+    // Merge into the textarea, deduplicated
+    const existing = (imagesField.value || '')
+                      .split(',').map(s=>s.trim()).filter(Boolean);
+    const merged = Array.from(new Set([...existing, ...chosen]));
+    imagesField.value = merged.join(', ');
+    // Optional: close panel
+    panel.style.display = 'none';
+  });
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2strap.bundle.min.js</script>
 </body>
 </html>
