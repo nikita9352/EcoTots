@@ -35,23 +35,5 @@
     "price": 299,
     "pickup": "Pune, MH",
     "contact": "+91 9621146688"
-  },
-  {
-    "id": "Hsns",
-    "name": "Bdnd",
-    "price": 56,
-    "condition": "Bzn",
-    "link": "Hzn",
-    "pickup": "Bznz",
-    "contact": "",
-    "features": [
-      "A",
-      "S",
-      "D"
-    ],
-    "images": [
-      "photos/49DEA474-0E3D-4206-88DB-8DCA6DDAA820.jpeg",
-      "photos/991DED93-4E21-4AA1-BD51-42AD302ED1E8.jpeg"
-    ]
   }
 ]
