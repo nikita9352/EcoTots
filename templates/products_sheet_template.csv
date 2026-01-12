@@ -1,0 +1,3 @@
+id,name,price,condition,link,pickup,contact,features,images,status
+eco101,Organic Cotton Onesie,699,Brand New,https://example.com/onesie,"Pune, MH",+91 9621146688,GOTS certified; Soft fabric; Eco-friendly dyes,"photos/onesie1.jpg, photos/onesie2.jpg",available
+eco102,Wooden Teether Ring,299,Like New,https://example.com/teether,"Pune, MH",+91 9621146688,Natural beechwood; BPA-free; Easy to clean,"photos/teether1.jpg, photos/teether2.jpg",sold
