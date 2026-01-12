@@ -17,7 +17,7 @@ on:
 # Set your published Google Sheet CSV link here (ends with output=csv).
 # Tip: In Google Sheets → File → Share → Publish to web → CSV → Copy the link.
 env:
-  SHEET_CSV_URL: "<PASTE_YOUR_GOOGLE_SHEET_CSV_LINK_HERE>"
+  SHEET_CSV_URL: "https://github.com/nikita9352/EcoTots/blob/main/templates/products_sheet_template.csv"
 
 jobs:
   update-products:
