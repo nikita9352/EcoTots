@@ -1,0 +1,102 @@
+
+name: Sync Google Sheet to products.json
+
+on:
+  # Runs every 30 minutes. Adjust as needed.
+  schedule:
+    - cron: '*/30 * * * *'
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+    inputs:
+      include_sold:
+        description: 'Include items marked as sold (true/false)'
+        required: false
+        default: 'false'
+
+# ---- Configuration ----
+# Set your published Google Sheet CSV link here (ends with output=csv).
+# Tip: In Google Sheets → File → Share → Publish to web → CSV → Copy the link.
+env:
+  SHEET_CSV_URL: "<PASTE_YOUR_GOOGLE_SHEET_CSV_LINK_HERE>"
+
+jobs:
+  update-products:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Google Sheet CSV
+        run: |
+          if [ -z "${SHEET_CSV_URL}" ]; then
+            echo "SHEET_CSV_URL is not set. Edit the workflow env section and paste your published CSV link."
+            exit 1
+          fi
+          echo "Downloading CSV from: ${SHEET_CSV_URL}"
+          curl -L "${SHEET_CSV_URL}" -o sheet.csv
+          ls -l sheet.csv
+          head -n 2 sheet.csv || true
+
+      - name: Convert CSV → products.json
+        run: |
+          python3 - <<'PY'
+          import csv, json, os, sys
+
+          # Read inputs
+          include_sold_input = os.environ.get('INPUT_INCLUDE_SOLD', 'false').lower().strip()
+          include_sold = (include_sold_input == 'true')
+
+          rows = []
+          with open('sheet.csv', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            # Required columns:
+            # id, name, price, condition, link, pickup, contact, features, images, status
+            for r in reader:
+              status_raw = (r.get('status','') or '').strip().lower()
+              available = status_raw in ('available','avail','a','')  # treat blank as available
+              if not include_sold and not available:
+                # Skip sold items unless opted-in
+                continue
+
+              # Parse features: ; separated → list
+              features = [x.strip() for x in (r.get('features','') or '').split(';') if x.strip()]
+              # Parse images: , separated → list
+              images = [x.strip() for x in (r.get('images','') or '').split(',') if x.strip()]
+
+              # Parse price (int). If decimal/blank, coerce safely.
+              price_raw = (r.get('price','') or '').strip()
+              try:
+                price = int(float(price_raw))
+              except:
+                price = 0
+
+              item = {
+                "id":        (r.get('id','') or '').strip(),
+                "name":      (r.get('name','') or '').strip(),
+                "price":     price,
+                "condition": (r.get('condition','') or '').strip(),
+                "link":      (r.get('link','') or '').strip(),
+                "pickup":    (r.get('pickup','') or '').strip(),
+                "contact":   (r.get('contact','') or '').strip(),
+                "features":  features,
+                "images":    images,
+                "status":    status_raw or ("available" if available else "sold"),
+                "available": available
+              }
+              rows.append(item)
+
+          # Write products.json
+          with open('products.json','w', encoding='utf-8') as out:
+            json.dump(rows, out, ensure_ascii=False, indent=2)
+
+          print(f"Wrote products.json with {len(rows)} items.")
+          PY
+
+      - name: Commit and push products.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add products.json
+          git diff --quiet && echo "No changes to commit." || git commit -m "Update products.json from Google Sheet"
+          git push
