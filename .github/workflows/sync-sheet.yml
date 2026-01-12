@@ -4,7 +4,7 @@ name: Sync Google Sheet to products.json
 on:
   # Runs every 30 minutes. Adjust as needed.
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/05 * * * *'
   # Allow manual runs from the Actions tab.
   workflow_dispatch:
     inputs:
