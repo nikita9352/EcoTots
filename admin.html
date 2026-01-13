@@ -1,341 +1,360 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EcoTots — Admin (mobile, auto-commit)</title>
-
-  <!-- Bootstrap CSS (with SRI for extra safety) -->
-  https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css
-
-  <!-- Inline styles -->
+  <title>EcoTots — Admin</title>
   <style>
-    body { background:#f7f7f7; }
-    .card { box-shadow:0 4px 16px rgba(0,0,0,.06); }
-    .preview img { width:80px; height:80px; object-fit:cover; border-radius:6px; margin:4px; }
-    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
-    .smallmuted { font-size:.9rem; color:#666; }
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 0; }
+    header { position: sticky; top:0; background: #17594A; color: #fff; padding: 12px 16px; display:flex; align-items:center; gap:12px; z-index: 10; }
+    header img { height:32px; border-radius:6px; background:#fff; padding:2px; }
+    main { padding: 16px; max-width: 980px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; margin: 0; }
+    h2 { margin-top: 0; }
+    .grid { display:grid; gap:16px; grid-template-columns: 1fr; }
+    @media (min-width: 900px){ .grid { grid-template-columns: 1fr 1fr; } }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #fff; }
+    .muted { color:#666; font-size: .92rem; }
+    input[type="text"], input[type="number"], textarea { width: 100%; box-sizing: border-box; padding: 10px; border:1px solid #bbb; border-radius:8px; }
+    button { padding: 10px 14px; border-radius: 8px; border: 1px solid #999; background:#f5f5f5; cursor:pointer; }
+    button.primary { background:#2e7d32; color:white; border-color:#2e7d32; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .thumbs { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap:12px; }
+    .thumbs a { text-decoration:none; color:inherit; }
+    .thumbs img { width:100%; height: 90px; object-fit:cover; border-radius:8px; border:1px solid #ddd; }
+    .ok { color: #1b5e20; }
+    .warn { color: #c62828; }
+    code.inline { padding: 2px 4px; border-radius: 4px; background: #eee; }
+    .stack { display:flex; flex-direction:column; gap:8px; }
+    .sep { height:1px; background:#eee; margin:12px 0; }
   </style>
 </head>
 <body>
-  <div class="container py-3">
-    <h1 class="h5 mb-2">EcoTots — Catalog Editor</h1>
-    <p class="text-muted">Edit <code>products.json</code> from your phone. Optional: auto-commit to GitHub.</p>
+  <header>
+    <img src="logo.png" alt="EcoTots" />
+    <h1>EcoTots — Admin</h1>
+  </header>
+  <main>
 
-    <!-- GitHub settings -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <h2 class="h6">GitHub (for auto‑save)</h2>
-        <div class="row g-2">
-          <div class="col-6">
-            <label class="form-label">Owner</label>
-            <input id="ghOwner" class="form-control" value="nikita9352" />
+    <section class="card">
+      <h2>1) Admin sign‑in (Personal Access Token)</h2>
+      <p class="muted">Use a <strong>fine‑grained PAT</strong> limited to this repository with <em>Contents: Read &amp; Write</em>. The token is stored only in your browser (<code class="inline">localStorage</code>). You can clear it anytime.</p>
+      <div class="stack">
+        <input id="patInput" type="text" placeholder="Paste your GitHub PAT here" />
+        <div class="row">
+          <button id="savePatBtn" class="primary">Save</button>
+          <button id="clearPatBtn">Clear</button>
+          <span id="patState" class="muted">No token saved.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>2) Upload product photo → <code class="inline">images/</code></h2>
+        <p class="muted">Takes a photo/chooses from gallery. On phones, camera opens automatically.</p>
+        <div class="stack">
+          <input id="imgFile" type="file" accept="image/*" capture="environment" />
+          <div class="row">
+            <label>Max width: <input id="maxW" type="number" value="1600" style="width:6em"></label>
+            <label>Quality: <input id="jpegQ" type="number" value="0.8" step="0.05" min="0.4" max="1" style="width:4.5em"></label>
           </div>
-          <div class="col-6">
-            <label class="form-label">Repo</label>
-            <input id="ghRepo" class="form-control" value="EcoTots" />
+          <div id="imgPreviewWrap" style="display:none">
+            <img id="imgPreview" style="max-width:100%; border-radius:8px" alt="Preview">
+            <p id="imgMeta" class="muted"></p>
           </div>
-          <div class="col-6">
-            <label class="form-label">Branch</label>
-            <input id="ghBranch" class="form-control" value="main" />
+          <input id="imgName" type="text" placeholder="filename (e.g., coat-blue-110.jpg)" />
+          <div class="row">
+            <button id="uploadImgBtn" class="primary">Upload to images/</button>
+            <button id="listBtn">Refresh images list</button>
           </div>
-          <div class="col-6">
-            <label class="form-label">File path</label>
-            <input id="ghPath" class="form-control" value="products.json" />
-          </div>
-          <div class="col-12">
-            <label class="form-label">Personal Access Token (fine‑grained; Contents: Read/Write)</label>
-            <input id="ghToken" class="form-control" type="password" placeholder="ghp_..." />
-            <div class="form-text">Token is only used in your browser to call GitHub; not stored or sent elsewhere.</div>
-          </div>
-          <div class="col-12 d-flex gap-2 align-items-center">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="autoCommit" />
-              <label class="form-check-label" for="autoCommit">Auto‑commit on changes</label>
+          <div id="imgResult" style="display:none">
+            <p><strong>Committed:</strong> <a id="committedLink" href="#" target="_blank" rel="noopener"></a></p>
+            <p>Pages URL: <code id="pagesUrl"></code><br>Raw URL: <code id="rawUrl"></code></p>
+            <div class="sep"></div>
+            <h3>Product card snippet</h3>
+            <textarea id="productSnippet" rows="8" readonly></textarea>
+            <div class="row">
+              <button id="copySnippetBtn">Copy snippet</button>
+              <a id="whatsAppBtn" target="_blank" rel="noopener"><button>Share to WhatsApp</button></a>
             </div>
-            <button id="btnLoadFromGitHub" class="btn btn-outline-primary btn-sm">Load from GitHub</button>
-            <button id="btnSaveNow" class="btn btn-primary btn-sm">Save now</button>
           </div>
-          <div id="ghStatus" class="smallmuted mt-2">Status: idle</div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <!-- Load products.json from file (optional) -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <h2 class="h6">Load existing <code>products.json</code> (optional)</h2>
-        <input type="file" id="fileInput" accept="application/json" class="form-control" />
-      </div>
-    </div>
-
-    <!-- Form -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <h2 class="h6">Add / Edit Item</h2>
-        <form id="productForm" class="row g-2">
-          <div class="col-6"><label class="form-label">ID</label><input name="id" class="form-control" placeholder="eco201" required></div>
-          <div class="col-6"><label class="form-label">Item Name</label><input name="name" class="form-control" required></div>
-          <div class="col-6"><label class="form-label">Asking Price (₹)</label><input name="price" type="number" min="0" class="form-control" required></div>
-          <div class="col-6"><label class="form-label">Condition</label><input name="condition" class="form-control" placeholder="Brand New / Like New / Used"></div>
-          <div class="col-12"><label class="form-label">Online Link</label><input name="link" class="form-control" placeholder="https://..."></div>
-          <div class="col-12"><label class="form-label">Pickup Address</label><input name="pickup" class="form-control" placeholder="Area, City"></div>
-          <div class="col-12"><label class="form-label">Contact Number</label><input name="contact" class="form-control" placeholder="+91 9621146688"></div>
-
-          <div class="col-12">
-            <label class="form-label">Features (one per line)</label>
-            <textarea name="features" class="form-control" rows="3" placeholder="Feature 1
-Feature 2
-Feature 3"></textarea>
-          </div>
-
-          <!-- Mobile photo picker -->
-          <div class="col-12">
-            <label class="form-label">Upload Images from Phone</label>
-            <input type="file" id="uploadImages" accept="image/*" multiple class="form-control" />
-            <div id="previewArea" class="preview mt-2 d-flex flex-wrap"></div>
-            <textarea name="images" id="imagesField" class="form-control mt-2 mono" rows="2"
-              placeholder="images/img1.jpg, images/img2.jpg"></textarea>
-            <div class="form-text">This field will auto-fill with <code>images/&lt;filename&gt;</code> for each selected image. Upload those files to your repo's <code>images/</code> later.</div>
-          </div>
-
-          <div class="col-12"><button class="btn btn-primary" type="submit">Add / Update Item</button></div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Table + actions -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <h2 class="h6">Catalog</h2>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle">
-            <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Images</th><th>Actions</th></tr></thead>
-            <tbody id="list"></tbody>
-          </table>
+      <section class="card">
+        <h2>3) Products.json editor</h2>
+        <div class="row">
+          <button id="loadJsonBtn">Load current products.json</button>
+          <button id="saveJsonBtn" class="primary">Validate & Commit</button>
+          <span id="jsonState" class="muted"></span>
         </div>
-        <div class="d-flex gap-2">
-          <button id="downloadBtn" class="btn btn-success">Download products.json</button>
-          <button id="clearAllBtn" class="btn btn-outline-danger">Clear all (local only)</button>
-        </div>
-      </div>
+        <textarea id="jsonArea" rows="20" placeholder='{"products": [ ... ]}'></textarea>
+      </section>
     </div>
-  </div>
 
-<script>
-  // ================== State ==================
-  let items = [];
-  let currentSha = null; // latest SHA of products.json when committing
+    <section class="card">
+      <h2>4) images/ in repository</h2>
+      <div id="thumbs" class="thumbs"></div>
+    </section>
 
-  // persist non-sensitive settings
-  const settingsKeys = ['ghOwner','ghRepo','ghBranch','ghPath'];
-  window.addEventListener('DOMContentLoaded', () => {
-    settingsKeys.forEach(id => {
-      const el = document.getElementById(id);
-      const saved = localStorage.getItem(id);
-      if (saved) el.value = saved;
-      el.addEventListener('input', () => localStorage.setItem(id, el.value.trim()));
-    });
-  });
+    <p class="muted">References: GitHub Contents API; MDN <code>capture</code> attribute; WhatsApp Click‑to‑Chat.</p>
+  </main>
 
-  const gh = {
-    get owner(){ return document.getElementById('ghOwner').value.trim(); },
-    get repo(){ return document.getElementById('ghRepo').value.trim(); },
-    get branch(){ return document.getElementById('ghBranch').value.trim(); },
-    get path(){ return document.getElementById('ghPath').value.trim() || 'products.json'; },
-    get token(){ return document.getElementById('ghToken').value.trim(); }
-  };
+  <script>
+    // ===== CONFIG =====
+    const OWNER  = '<YOUR_GITHUB_USERNAME>';
+    const REPO   = '<YOUR_REPO_NAME>';     // e.g., 'EcoTots'
+    const BRANCH = 'main';                  // or 'master'
+    // Optional: set your WhatsApp number (international format, no +, spaces, or dashes)
+    const WHATSAPP_NUMBER = '';
 
-  // ================== UI helpers ==================
-  function setStatus(msg, type='info'){
-    const el = document.getElementById('ghStatus');
-    el.textContent = `Status: ${msg}`;
-    el.style.color = (type==='error') ? '#b00020' : (type==='success' ? '#1b5e20' : '#666');
-  }
-  function renderTable(){
-    const tbody = document.getElementById('list');
-    tbody.innerHTML = '';
-    items.forEach((p, idx) => {
-      const tr = document.createElement('tr');
-      const imgCount = Array.isArray(p.images) ? p.images.length : 0;
-      tr.innerHTML = `<td>${p.id||''}</td><td>${p.name||''}</td><td>${p.price||''}</td><td>${imgCount}</td>`;
-      const tdAct = document.createElement('td');
-      const del = document.createElement('button'); del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
-      del.onclick = async () => {
-        items.splice(idx,1);
-        renderTable();
-        if (document.getElementById('autoCommit').checked) await saveToGitHub('Delete item');
-      };
-      tdAct.appendChild(del);
-      tr.appendChild(tdAct);
-      tbody.appendChild(tr);
-    });
-  }
+    // ===== HELPERS =====
+    const $ = (sel) => document.querySelector(sel);
+    const patInput = $('#patInput');
+    const savePatBtn = $('#savePatBtn');
+    const clearPatBtn = $('#clearPatBtn');
+    const patState = $('#patState');
 
-  // ================== File load / download ==================
-  document.getElementById('fileInput').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const text = await file.text();
-    try { const j = JSON.parse(text); if(!Array.isArray(j)) throw new Error('Not array'); items = j; currentSha = null; }
-    catch { alert('Invalid JSON'); items = []; }
-    renderTable();
-  });
+    function getPAT(){ return localStorage.getItem('GITHUB_PAT') || ''; }
+    function setPAT(v){ localStorage.setItem('GITHUB_PAT', v); }
+    function clearPAT(){ localStorage.removeItem('GITHUB_PAT'); }
 
-  document.getElementById('downloadBtn').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'products.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
-
-  document.getElementById('clearAllBtn').addEventListener('click', ()=>{
-    if (confirm('Clear all items locally?')) { items = []; renderTable(); }
-  });
-
-  // ================== Add / Edit ==================
-  document.getElementById('productForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const obj = Object.fromEntries(fd.entries());
-    obj.price = Number(obj.price || 0);
-    obj.features = (obj.features||'').split('\n').map(s=>s.trim()).filter(Boolean);
-    obj.images = (obj.images||'').split(',').map(s=>s.trim()).filter(Boolean);
-
-    const idx = items.findIndex(x => x.id === obj.id);
-    if (idx >= 0) items[idx] = obj; else items.push(obj);
-
-    e.target.reset();
-    document.getElementById('previewArea').innerHTML = '';
-    renderTable();
-
-    if (document.getElementById('autoCommit').checked) {
-      await saveToGitHub(idx>=0 ? 'Update item' : 'Add item');
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024; const sizes = ['B','KB','MB','GB'];
+      const i = Math.floor(Math.log(bytes)/Math.log(k));
+      return (bytes/Math.pow(k,i)).toFixed(2) + ' ' + sizes[i];
     }
-  });
 
-  // ================== Mobile photo picker ==================
-  const uploadInput = document.getElementById('uploadImages');
-  const previewArea = document.getElementById('previewArea');
-  const imagesField = document.getElementById('imagesField');
-  uploadInput.addEventListener('change', ()=>{
-    previewArea.innerHTML = '';
-    const files = Array.from(uploadInput.files);
-    const paths = [];
-    files.forEach(file => {
-      const url = URL.createObjectURL(file);
-      const img = document.createElement('img');
-      img.src = url;
-      previewArea.appendChild(img);
-      paths.push(`images/${file.name}`); // unified folder
-    });
-    imagesField.value = paths.join(', ');
-  });
+    function baseHeaders(){
+      const token = getPAT();
+      return {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28'
+      };
+    }
 
-  // ================== GitHub API helpers ==================
-  // Modern UTF-8 base64 encoding
-  function toBase64Utf8(str){
-    const utf8Bytes = new TextEncoder().encode(str);
-    let bin = '';
-    utf8Bytes.forEach(b => bin += String.fromCharCode(b));
-    return btoa(bin);
-  }
+    async function githubGet(pathWithQuery){
+      const res = await fetch(pathWithQuery, { headers: baseHeaders() });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    }
 
-  async function fetchCurrentFileMeta(){
-    const url = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${gh.path}?ref=${encodeURIComponent(gh.branch)}`;
-    const res = await fetch(url, { headers: { 'Accept':'application/vnd.github+json', 'Authorization':`Bearer ${gh.token}` }});
-    if (res.status === 404) { currentSha = null; return null; } // file does not exist yet
-    if (!res.ok) throw new Error(`GET ${gh.path} failed: ${res.status}`);
-    const data = await res.json();
-    currentSha = data.sha || null;
-    return data;
-  }
-
-  async function commitFile(message, contentB64){
-    const url = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${gh.path}`;
-    const body = {
-      message,
-      content: contentB64,
-      branch: gh.branch
-    };
-    if (currentSha) body.sha = currentSha;
-
-    const res = await fetch(url, {
-      method:'PUT',
-      headers: {
-        'Accept':'application/vnd.github+json',
-        'Authorization':`Bearer ${gh.token}`,
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (res.status === 409) {
-      // SHA out of date—refresh sha and retry once
-      await fetchCurrentFileMeta();
-      body.sha = currentSha || undefined;
-      const res2 = await fetch(url, {
-        method:'PUT',
-        headers:{
-          'Accept':'application/vnd.github+json',
-          'Authorization':`Bearer ${gh.token}`,
-          'Content-Type':'application/json'
-        },
+    async function createOrUpdateFile(path, base64Content, message, existingSha=null){
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}`;
+      const body = { message, content: base64Content, branch: BRANCH };
+      if (existingSha) body.sha = existingSha;
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { ...baseHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      if (!res2.ok) throw new Error(`PUT retry failed: ${res2.status}`);
-      const data2 = await res2.json();
-      currentSha = data2.content?.sha || null;
-      return data2;
-    }
-
-    if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
-    const data = await res.json();
-    currentSha = data.content?.sha || null;
-    return data;
-  }
-
-  // Public actions
-  document.getElementById('btnLoadFromGitHub').addEventListener('click', async ()=>{
-    try{
-      setStatus('Loading from GitHub…');
-      if (!gh.token) { alert('Enter your GitHub token first.'); return; }
-      const file = await fetchCurrentFileMeta();
-      if (!file) { items = []; renderTable(); setStatus('products.json not found (new file).'); return; }
-      // content is base64; decode safely
-      const raw = atob((file.content || '').replace(/\n/g,''));
-      items = JSON.parse(raw);
-      renderTable();
-      setStatus('Loaded products.json', 'success');
-    }catch(err){ setStatus(err.message || 'Load error', 'error'); }
-  });
-
-  document.getElementById('btnSaveNow').addEventListener('click', async ()=>{
-    await saveToGitHub('Save now');
-  });
-
-  async function saveToGitHub(actionLabel){
-    try{
-      if (!gh.token) { alert('Enter your GitHub token first.'); return; }
-      setStatus(`${actionLabel}: committing…`);
-      if (currentSha === null) { // unknown—fetch once
-        await fetchCurrentFileMeta().catch(()=>{ currentSha = null; });
+      if (!res.ok){
+        const err = await res.json().catch(()=>({}));
+        throw new Error(err.message || `HTTP ${res.status}`);
       }
-      const json = JSON.stringify(items, null, 2);
-      const b64  = toBase64Utf8(json);
-      const res  = await commitFile(`${actionLabel}: update products.json`, b64);
-      setStatus(`Committed ${gh.path} @ ${gh.branch}`, 'success');
-      return res;
-    }catch(err){
-      console.error(err);
-      setStatus(err.message || 'Commit failed', 'error');
+      return res.json();
     }
-  }
-</script>
 
-<!-- Bootstrap Bundle JS (with SRI) -->
-<script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN
+    async function getFileSha(path){
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(BRANCH)}`;
+      try{
+        const data = await githubGet(url);
+        return data.sha || null;
+      }catch(e){ return null; }
+    }
+
+    function arrayBufferToBase64(buf){
+      let binary = '';
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
+    }
+
+    function dataURLToBase64(dataUrl){
+      return dataUrl.substring(dataUrl.indexOf(',')+1);
+    }
+
+    function pagesImageUrl(filename){
+      return `https://${OWNER}.github.io/${REPO}/images/${encodeURIComponent(filename)}`;
+    }
+
+    function whatsAppLink(text){
+      const base = WHATSAPP_NUMBER ? `https://wa.me/${WHATSAPP_NUMBER}` : 'https://wa.me/';
+      return `${base}?text=${encodeURIComponent(text)}`;
+    }
+
+    // ===== PAT UI =====
+    function refreshPatState(){
+      const has = !!getPAT();
+      patState.textContent = has ? 'Token saved in this browser.' : 'No token saved.';
+      if (has) patState.className = 'ok'; else patState.className = 'warn';
+    }
+    savePatBtn.addEventListener('click', ()=>{ setPAT(patInput.value.trim()); refreshPatState(); alert('Saved'); });
+    clearPatBtn.addEventListener('click', ()=>{ clearPAT(); refreshPatState(); alert('Cleared'); });
+    patInput.value = getPAT(); refreshPatState();
+
+    // ===== Upload Image =====
+    const fileInput = $('#imgFile');
+    const maxWInput = $('#maxW');
+    const qInput = $('#jpegQ');
+    const previewWrap = $('#imgPreviewWrap');
+    const previewImg = $('#imgPreview');
+    const imgMeta = $('#imgMeta');
+    const imgName = $('#imgName');
+    const uploadBtn = $('#uploadImgBtn');
+    const imgResult = $('#imgResult');
+    const committedLink = $('#committedLink');
+    const pagesUrlEl = $('#pagesUrl');
+    const rawUrlEl = $('#rawUrl');
+    const productSnippet = $('#productSnippet');
+    const copySnippetBtn = $('#copySnippetBtn');
+    const whatsAppBtn = $('#whatsAppBtn');
+    const listBtn = $('#listBtn');
+
+    let selectedFile = null; let compressedBlob = null;
+
+    function loadImage(file){
+      return new Promise((resolve, reject)=>{
+        const img = new Image();
+        img.onload = ()=> resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function compressImage(file, maxW=1600, quality=0.8){
+      const img = await loadImage(file);
+      const scale = Math.min(1, maxW / img.width);
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+      return new Promise((resolve, reject)=>{
+        canvas.toBlob((blob)=>{ if (!blob) return reject(new Error('Compression failed')); resolve({ blob, w, h }); }, 'image/jpeg', quality);
+      });
+    }
+
+    fileInput.addEventListener('change', async ()=>{
+      if (!fileInput.files || !fileInput.files[0]) return;
+      selectedFile = fileInput.files[0];
+      try{
+        const { blob, w, h } = await compressImage(selectedFile, parseInt(maxWInput.value||'1600',10), parseFloat(qInput.value||'0.8'));
+        compressedBlob = blob;
+        previewImg.src = URL.createObjectURL(blob);
+        imgMeta.textContent = `Original: ${formatBytes(selectedFile.size)} → Compressed: ${formatBytes(blob.size)} (${w}×${h})`;
+        previewWrap.style.display = '';
+        if (!imgName.value){
+          const base = (selectedFile.name||'ecotots-photo').replace(/\.[^.]+$/,'').toLowerCase().replace(/[^a-z0-9\-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+          imgName.value = base + '.jpg';
+        }
+      }catch(e){ alert('Could not process image: ' + e.message); }
+    });
+
+    uploadBtn.addEventListener('click', async ()=>{
+      if (!getPAT()) return alert('Please save your PAT first.');
+      if (!compressedBlob) return alert('Pick a photo first.');
+      const filename = (imgName.value||'').trim(); if (!filename) return alert('Enter a filename.');
+      const path = `images/${filename}`;
+      try{
+        const existingSha = await getFileSha(path);
+        const buf = await compressedBlob.arrayBuffer();
+        const base64 = arrayBufferToBase64(buf);
+        const msg = existingSha ? `chore(images): update ${filename}` : `feat(images): add ${filename}`;
+        const data = await createOrUpdateFile(path, base64, msg, existingSha);
+
+        const pagesUrl = pagesImageUrl(filename);
+        const rawUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/images/${encodeURIComponent(filename)}`;
+        committedLink.href = data.commit?.html_url || `https://github.com/${OWNER}/${REPO}/commit/${data.commit?.sha || ''}`;
+        committedLink.textContent = committedLink.href;
+        pagesUrlEl.textContent = pagesUrl; rawUrlEl.textContent = rawUrl;
+
+        const snippet = [
+          '<!-- Product card -->',
+          '<div class="product">',
+          `  <img src="${pagesUrl}" alt="EcoTots product" loading="lazy">`,
+          '  <h3>Product name</h3>',
+          '  <p class="muted">Short description</p>',
+          '  <div class="price-row">',
+          '    <strong>₹Price</strong>',
+          '    <a class="whatsapp" target="_blank" rel="noopener"',
+          '       href="'+ whatsAppLink('I want to order this EcoTots item: '+pagesUrl) +'">Order on WhatsApp</a>',
+          '  </div>',
+          '</div>'
+        ].join('\n');
+        productSnippet.value = snippet;
+        whatsAppBtn.href = whatsAppLink(`Hi EcoTots! Please list this product photo: ${pagesUrl}`);
+        imgResult.style.display = '';
+        await listImages();
+        alert('Image committed to images/.');
+      }catch(e){ alert('Upload failed: ' + e.message); }
+    });
+
+    copySnippetBtn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(productSnippet.value); copySnippetBtn.textContent='Copied!'; setTimeout(()=>copySnippetBtn.textContent='Copy snippet', 1000); }catch(e){ alert('Copy failed'); }
+    });
+
+    // ===== Products.json =====
+    const loadJsonBtn = $('#loadJsonBtn');
+    const saveJsonBtn = $('#saveJsonBtn');
+    const jsonArea = $('#jsonArea');
+    const jsonState = $('#jsonState');
+
+    async function loadProductsJson(){
+      if (!getPAT()) return alert('Please save your PAT first.');
+      jsonState.textContent = 'Loading...';
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/products.json?ref=${encodeURIComponent(BRANCH)}`;
+      try{
+        const data = await githubGet(url);
+        const content = atob(data.content || '');
+        jsonArea.value = content;
+        jsonArea.dataset.sha = data.sha || '';
+        jsonState.textContent = 'Loaded.';
+      }catch(e){ jsonState.textContent = 'Not found (will create new on save).'; jsonArea.value = '{\n  "products": []\n}'; jsonArea.dataset.sha = ''; }
+    }
+
+    function validateJson(text){
+      try{ const obj = JSON.parse(text); return { ok: true, obj }; }
+      catch(e){ return { ok:false, error: e.message }; }
+    }
+
+    async function saveProductsJson(){
+      if (!getPAT()) return alert('Please save your PAT first.');
+      const val = jsonArea.value;
+      const v = validateJson(val);
+      if (!v.ok) return alert('JSON invalid: ' + v.error);
+      const base64 = btoa(unescape(encodeURIComponent(val)));
+      const existingSha = jsonArea.dataset.sha || await getFileSha('products.json');
+      const data = await createOrUpdateFile('products.json', base64, 'chore: update products.json', existingSha||null);
+      jsonArea.dataset.sha = data.content?.sha || '';
+      jsonState.textContent = 'Saved.';
+      alert('products.json committed.');
+    }
+
+    loadJsonBtn.addEventListener('click', loadProductsJson);
+    saveJsonBtn.addEventListener('click', saveProductsJson);
+
+    // ===== List images =====
+    async function listImages(){
+      const thumbs = $('#thumbs'); thumbs.innerHTML = '';
+      try{
+        const listUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/images?ref=${encodeURIComponent(BRANCH)}`;
+        const arr = await githubGet(listUrl);
+        const files = Array.isArray(arr) ? arr.filter(x=>x.type==='file') : [];
+        for (const f of files){
+          const a = document.createElement('a'); a.href = pagesImageUrl(f.name); a.target = '_blank'; a.rel = 'noopener';
+          const img = document.createElement('img'); img.src = pagesImageUrl(f.name); img.alt = f.name; a.appendChild(img);
+          thumbs.appendChild(a);
+        }
+      }catch(e){ /* ignore */ }
+    }
+    listBtn.addEventListener('click', listImages);
+
+    // Initial data
+    listImages();
+  </script>
+</body>
+</html>
