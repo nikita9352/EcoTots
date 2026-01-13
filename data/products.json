@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Bamboo Bottle – 500ml",
+    "description": "Eco-friendly bamboo exterior with stainless-steel inner.",
+    "features": [
+      "Leak-proof",
+      "BPA-free",
+      "Insulated"
+    ],
+    "condition": "new",
+    "online_link": "https://example.com/bamboo-bottle-500ml",
+    "price": 599,
+    "currency": "INR",
+    "status": "available",
+    "images": [
+      "images/bamboo-bottle-500ml/1.jpg",
+      "images/bamboo-bottle-500ml/2.jpg"
+    ],
+    "tags": [
+      "bottle",
+      "eco",
+      "kids"
+    ]
+  },
+  {
+    "title": "Cotton Bib – Blue Stars",
+    "description": "Soft organic cotton bib with snap closure.",
+    "features": [
+      "Organic cotton",
+      "Machine-washable",
+      "Gentle on skin"
+    ],
+    "condition": "used",
+    "online_link": "https://example.com/cotton-bib-blue-stars",
+    "price": 149,
+    "currency": "INR",
+    "status": "sold",
+    "images": [
+      "images/cotton-bib-blue-stars/1.jpg"
+    ],
+    "tags": [
+      "bib",
+      "cotton",
+      "kids"
+    ]
+  }
+]

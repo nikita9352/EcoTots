@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoTots – Product Catalog</title>
+  <meta name="description" content="EcoTots: eco-friendly, kid‑friendly products. Browse, WhatsApp order, and pay via UPI." />
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="manifest" href="assets/manifest.json">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#28a745" />
+  <link rel="preload" href="assets/logo.svg" as="image" />
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-wrap">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img class="logo" src="assets/logo.svg" alt="EcoTots" />
+        <span class="brand-title">EcoTots</span>
+      </div>
+      <div class="pickup">
+        Pickup: Reliaable Acacia, Bangalore · <a href="https://maps.app.goo.gl/g7dsYFs32bgio1bz7" target="_blank" rel="noopener">View on Google Maps</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="controls">
+      <div class="search"><input id="q" type="search" placeholder="Search by title, tag, or feature…"></div>
+      <a class="btn" href="https://wa.me/919621146688?text=Hello%20EcoTots!%20I%20have%20a%20general%20question%20about%20your%20products." target="_blank" rel="noopener">General queries on WhatsApp</a>
+    </div>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+
+    <section class="footer">
+      <p><strong>EcoTots</strong> – Eco‑friendly, kid‑friendly finds. Pickup at <strong>Reliaable Acacia, Bangalore</strong>. <a href="https://maps.app.goo.gl/g7dsYFs32bgio1bz7" target="_blank" rel="noopener">Open in Google Maps</a>.</p>
+      <p class="small">Pay securely via UPI to <strong>9621146688@upi</strong>. No backend – this site is fully static and data‑driven.</p>
+    </section>
+  </main>
+
+  <a class="fab" href="https://wa.me/919621146688?text=Hello%20EcoTots!%20I%20have%20a%20general%20question%20about%20your%20products." target="_blank" rel="noopener">WhatsApp</a>
+
+  <script src="src/app.js" defer></script>
+</body>
+</html>

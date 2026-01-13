@@ -1,0 +1,20 @@
+{
+  "name": "EcoTots Catalog",
+  "short_name": "EcoTots",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5fff7",
+  "theme_color": "#28a745",
+  "icons": [
+    {
+      "src": "assets/ecotots-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/ecotots-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
