@@ -1,6 +1,0 @@
-:root { --eco-green:#2e7d32; }
-.hero { background: radial-gradient(800px 300px at 50% -10%, #f5fff3, #ffffff); }
-.product-card { border:none; box-shadow:0 4px 16px rgba(0,0,0,.06); }
-.product-img { height:220px; object-fit:cover; }
-.btn-primary { background-color: var(--eco-green); border-color: var(--eco-green); }
-.btn-primary:hover { background-color:#256628; border-color:#256628; }
